@@ -1,0 +1,526 @@
+.upload-hub-section {
+  position: relative;
+  z-index: 10;
+  width: min(1180px, 92vw);
+  margin: 0 auto;
+  padding: 140px 0;
+  color: white;
+}
+
+.upload-hub-hero {
+  max-width: 850px;
+  margin-bottom: 60px;
+}
+
+.upload-hub-badge {
+  display: inline-flex;
+  margin-bottom: 18px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(0, 212, 255, 0.12);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  color: #8eeeff;
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
+.upload-hub-hero h2 {
+  font-size: clamp(2.6rem, 6vw, 5.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.07em;
+  margin-bottom: 22px;
+}
+
+.upload-hub-hero p,
+.upload-block-heading p {
+  font-size: 1.08rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.upload-steps-3d {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 24px;
+  margin-bottom: 36px;
+  perspective: 1200px;
+}
+
+.upload-step-card {
+  min-height: 340px;
+  transform-style: preserve-3d;
+  position: relative;
+  z-index: 10;
+}
+
+.upload-main-card {
+  margin-bottom: 90px;
+}
+
+.upload-step-content {
+  padding: 32px;
+  position: relative;
+  z-index: 20;
+}
+
+.upload-step-content > span,
+.upload-block-heading span {
+  color: #00d4ff;
+  font-weight: 900;
+  font-size: 0.85rem;
+}
+
+.upload-step-content h3,
+.upload-block-heading h3 {
+  margin: 10px 0 18px;
+  font-size: clamp(1.7rem, 3vw, 3rem);
+  letter-spacing: -0.05em;
+}
+
+.language-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.language-grid button {
+  padding: 14px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  cursor: pointer;
+  font-weight: 800;
+  transition: 0.25s ease;
+  pointer-events: auto;
+  position: relative;
+  z-index: 30;
+}
+
+.language-grid button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 212, 255, 0.35);
+}
+
+.language-grid button.active {
+  background: linear-gradient(135deg, #00d4ff, #a855f7);
+  color: black;
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.template-card {
+  position: relative;
+  min-height: 118px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(0, 212, 255, 0.16), transparent 38%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025));
+  color: white;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  pointer-events: auto;
+  z-index: 30;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.template-card::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
+.template-card::after {
+  content: "";
+  position: absolute;
+  right: -30px;
+  bottom: -30px;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(168, 85, 247, 0.24);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+.template-card strong {
+  position: relative;
+  z-index: 2;
+  display: block;
+  font-size: 1rem;
+  font-weight: 950;
+  letter-spacing: -0.03em;
+  margin-bottom: 9px;
+}
+
+.template-card small {
+  position: relative;
+  z-index: 2;
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.template-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  border-color: rgba(0, 212, 255, 0.42);
+  box-shadow:
+    0 0 24px rgba(0, 212, 255, 0.12),
+    inset 0 0 22px rgba(255, 255, 255, 0.04);
+}
+
+.template-card.active {
+  background:
+    radial-gradient(circle at top left, rgba(0, 212, 255, 0.38), transparent 42%),
+    linear-gradient(135deg, rgba(0, 212, 255, 0.22), rgba(168, 85, 247, 0.2));
+  border-color: rgba(0, 212, 255, 0.65);
+  box-shadow:
+    0 0 30px rgba(0, 212, 255, 0.22),
+    0 0 60px rgba(168, 85, 247, 0.12);
+}
+
+.template-card.active small {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.upload-title-input {
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 15px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  outline: none;
+  pointer-events: auto;
+  position: relative;
+  z-index: 30;
+}
+
+.upload-title-input::placeholder {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.upload-dropzone {
+  display: grid;
+  place-items: center;
+  min-height: 170px;
+  border-radius: 24px;
+  border: 1px dashed rgba(0, 212, 255, 0.45);
+  background: rgba(0, 212, 255, 0.08);
+  cursor: pointer;
+  text-align: center;
+  pointer-events: auto;
+  position: relative;
+  z-index: 30;
+}
+
+.upload-dropzone input {
+  display: none;
+}
+
+.upload-dropzone strong {
+  font-size: 1.2rem;
+}
+
+.upload-dropzone small {
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.upload-file-name {
+  margin-top: 14px;
+  color: #8eeeff;
+}
+
+.upload-error {
+  margin-top: 14px;
+  color: #ff8aa8;
+  font-weight: 700;
+}
+
+.upload-menu-block,
+.newspaper-area {
+  margin-top: 90px;
+}
+
+.flowing-menu-holder {
+  height: 560px;
+  margin-top: 28px;
+  border-radius: 32px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 0 35px rgba(0, 212, 255, 0.08),
+    inset 0 0 22px rgba(255, 255, 255, 0.03);
+}
+
+.newspaper-area {
+  perspective: 1400px;
+}
+
+.newspaper-card {
+  height: 100%;
+  min-height: 24rem;
+  overflow: hidden;
+  border-radius: 40px;
+  color: #07111f;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.35),
+    0 0 55px rgba(0, 212, 255, 0.12);
+}
+
+/* Template 1: Poster editorial */
+.poster-template {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(230, 245, 255, 0.92));
+}
+
+.poster-template .newspaper-image {
+  min-height: 100%;
+}
+
+/* Template 2: Revista limpa */
+.magazine-template,
+.newspaper-card-1 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: linear-gradient(135deg, #f4efe6, #dff8ff);
+}
+
+/* Template 3: Colunas jornal */
+.columns-template {
+  display: grid;
+  grid-template-columns: 1fr;
+  padding: 34px;
+  background: #f5f0e6;
+}
+
+.columns-template .newspaper-content {
+  column-count: 2;
+  column-gap: 34px;
+}
+
+/* Template 4: Imagem principal */
+.image-focus-template {
+  display: grid;
+  grid-template-rows: 48% 1fr;
+  background: #eef7ff;
+}
+
+.image-focus-template .newspaper-image {
+  min-height: 220px;
+}
+
+/* Template 5: Cards informativos */
+.cards-template {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  background: linear-gradient(135deg, #f5e9ff, #eef7ff);
+}
+
+.cards-template .newspaper-highlights {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Template 6: Minimal académico */
+.minimal-template {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 44px;
+  background: #f7f5ef;
+}
+
+.minimal-header {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.minimal-header span {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(7, 17, 31, 0.08);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.minimal-template h4 {
+  font-size: clamp(2.4rem, 5vw, 5rem);
+  line-height: 0.92;
+  letter-spacing: -0.08em;
+  margin-bottom: 20px;
+}
+
+.minimal-template p {
+  max-width: 760px;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(7, 17, 31, 0.78);
+}
+
+.minimal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.minimal-grid div {
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(7, 17, 31, 0.06);
+  line-height: 1.5;
+}
+
+.newspaper-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.newspaper-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.newspaper-content {
+  padding: 34px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.newspaper-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.newspaper-meta span {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(7, 17, 31, 0.08);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.newspaper-content h4 {
+  font-size: clamp(2rem, 4vw, 4rem);
+  line-height: 0.92;
+  letter-spacing: -0.07em;
+  margin-bottom: 18px;
+}
+
+.newspaper-content p {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: rgba(7, 17, 31, 0.78);
+}
+
+.newspaper-highlights {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.newspaper-highlights div {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.newspaper-highlights strong {
+  color: #0077ff;
+}
+
+.newspaper-highlights span {
+  color: rgba(7, 17, 31, 0.76);
+}
+
+.open-original-btn {
+  margin-top: 24px;
+  width: fit-content;
+  padding: 13px 18px;
+  border-radius: 999px;
+  background: #07111f;
+  color: white;
+  font-weight: 900;
+  text-decoration: none;
+  transition: 0.25s ease;
+}
+
+.open-original-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+@media (max-width: 900px) {
+  .upload-steps-3d,
+  .poster-template,
+  .magazine-template,
+  .cards-template,
+  .newspaper-card-1 {
+    grid-template-columns: 1fr;
+  }
+
+  .template-grid,
+  .minimal-grid,
+  .cards-template .newspaper-highlights {
+    grid-template-columns: 1fr;
+  }
+
+  .flowing-menu-holder {
+    height: 460px;
+  }
+
+  .scroll-stack-scroller {
+    height: 760px;
+  }
+
+  .columns-template .newspaper-content {
+    column-count: 1;
+  }
+}
+
+.empty-newspaper-state {
+  margin-top: 32px;
+  padding: 42px;
+  border-radius: 32px;
+  background: rgba(5, 8, 22, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: white;
+  text-align: center;
+}
+
+.empty-newspaper-state h4 {
+  font-size: clamp(1.8rem, 4vw, 3.2rem);
+  margin-bottom: 12px;
+  letter-spacing: -0.05em;
+}
+
+.empty-newspaper-state p {
+  color: rgba(255, 255, 255, 0.7);
+}
