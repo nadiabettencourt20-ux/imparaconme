@@ -70,10 +70,6 @@
   text-decoration: none;
 }
 
-.gooey-nav-container nav ul li:focus-within:has(:focus-visible) {
-  box-shadow: 0 0 0.5px 1.5px white;
-}
-
 .gooey-nav-container nav ul li::after {
   content: "";
   position: absolute;
@@ -123,25 +119,7 @@
 }
 
 .gooey-nav-container .effect.filter::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: transparent;
-  transform: scale(0);
-  opacity: 0;
-  z-index: -1;
-  border-radius: 100vw;
-}
-
-.gooey-nav-container .effect.active::after {
-  animation: pill 0.18s ease both;
-}
-
-@keyframes pill {
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  display: none;
 }
 
 .particle,

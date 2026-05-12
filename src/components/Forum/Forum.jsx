@@ -1,128 +1,173 @@
-import { useState } from "react"
-import OpenAI from "openai"
+import { useEffect, useState } from "react"
+import { supabase } from "../../lib/supabase"
 import GlareHover from "../GlareHover/GlareHover"
 import "./Forum.css"
 
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true,
-})
-
 function Forum() {
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      author: "Anónimo #2048",
-      time: "agora",
-      question: "O que é uma API e para que serve?",
-      tag: "programação",
-      ups: 12,
-      replies: [
-        {
-          id: 1,
-          author: "Anónimo #7812",
-          text: "Uma API é como uma ponte entre dois programas. Um programa pede algo e o outro responde.",
-        },
-      ],
-    },
-    {
-      id: 2,
-      author: "Anónimo #3901",
-      time: "há 5 min",
-      question: "Qual é a diferença entre frontend e backend?",
-      tag: "web",
-      ups: 8,
-      replies: [],
-    },
-  ])
-
+  const [posts, setPosts] = useState([])
   const [question, setQuestion] = useState("")
   const [replyTexts, setReplyTexts] = useState({})
-  const [donkeiResponses, setDonkeiResponses] = useState({})
+  const [loadingPost, setLoadingPost] = useState(false)
   const [loadingDonkei, setLoadingDonkei] = useState(null)
+  const [error, setError] = useState("")
 
-  function addQuestion() {
-    if (!question.trim()) return
+  useEffect(() => {
+    loadPosts()
+  }, [])
 
-    const newPost = {
-      id: Date.now(),
-      author: `Anónimo #${Math.floor(Math.random() * 9000 + 1000)}`,
-      time: "agora",
-      question,
-      tag: "informática",
-      ups: 0,
-      replies: [],
+  async function loadPosts() {
+    const { data, error } = await supabase
+      .from("forum_posts")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error(error)
+      setError("Não foi possível carregar o fórum.")
+      return
     }
 
-    setPosts([newPost, ...posts])
-    setQuestion("")
+    setPosts(data || [])
   }
 
-  function upPost(id) {
+  async function addQuestion() {
+    if (!question.trim()) return
+
+    setLoadingPost(true)
+    setError("")
+
+    const newPost = {
+      question: question.trim(),
+      tag: "informática",
+      votes: 0,
+      replies: [],
+      donkei_answer: null,
+    }
+
+    const { data, error } = await supabase
+      .from("forum_posts")
+      .insert([newPost])
+      .select()
+      .single()
+
+    if (error) {
+      console.error(error)
+      setError("Não foi possível publicar a pergunta.")
+      setLoadingPost(false)
+      return
+    }
+
+    setPosts([data, ...posts])
+    setQuestion("")
+    setLoadingPost(false)
+  }
+
+  async function upPost(post) {
+    const newVotes = (post.votes || 0) + 1
+
     setPosts(
-      posts.map((post) =>
-        post.id === id ? { ...post, ups: post.ups + 1 } : post
+      posts.map((item) =>
+        item.id === post.id ? { ...item, votes: newVotes } : item
       )
     )
+
+    const { error } = await supabase
+      .from("forum_posts")
+      .update({ votes: newVotes })
+      .eq("id", post.id)
+
+    if (error) {
+      console.error(error)
+    }
   }
 
-  function addReply(postId) {
-    const replyText = replyTexts[postId]
+  async function addReply(post) {
+    const replyText = replyTexts[post.id]
 
     if (!replyText || !replyText.trim()) return
 
+    const newReply = {
+      id: Date.now(),
+      author: `Anónimo #${Math.floor(Math.random() * 9000 + 1000)}`,
+      text: replyText.trim(),
+    }
+
+    const updatedReplies = Array.isArray(post.replies)
+      ? [...post.replies, newReply]
+      : [newReply]
+
     setPosts(
-      posts.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              replies: [
-                ...post.replies,
-                {
-                  id: Date.now(),
-                  author: `Anónimo #${Math.floor(Math.random() * 9000 + 1000)}`,
-                  text: replyText,
-                },
-              ],
-            }
-          : post
+      posts.map((item) =>
+        item.id === post.id ? { ...item, replies: updatedReplies } : item
       )
     )
 
-    setReplyTexts({ ...replyTexts, [postId]: "" })
+    setReplyTexts({ ...replyTexts, [post.id]: "" })
+
+    const { error } = await supabase
+      .from("forum_posts")
+      .update({ replies: updatedReplies })
+      .eq("id", post.id)
+
+    if (error) {
+      console.error(error)
+    }
   }
 
   async function activateDonkei(post) {
     setLoadingDonkei(post.id)
+    setError("")
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4.1-mini",
-        messages: [
-          {
-            role: "system",
-            content:
-              "Tu és o Donkei, uma IA que explica informática da forma mais simples possível, como se estivesse a explicar a uma criança ou a alguém sem conhecimentos técnicos.",
-          },
-          {
-            role: "user",
-            content: post.question,
-          },
-        ],
+      const response = await fetch("/api/forum-answer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question: post.question,
+        }),
       })
 
-      setDonkeiResponses((prev) => ({
-        ...prev,
-        [post.id]: response.choices[0].message.content,
-      }))
+      if (!response.ok) {
+        throw new Error("Erro ao contactar o Donkei.")
+      }
+
+      const data = await response.json()
+      const answer = data.answer
+
+      setPosts(
+        posts.map((item) =>
+          item.id === post.id ? { ...item, donkei_answer: answer } : item
+        )
+      )
+
+      const { error } = await supabase
+        .from("forum_posts")
+        .update({ donkei_answer: answer })
+        .eq("id", post.id)
+
+      if (error) {
+        console.error(error)
+      }
     } catch (error) {
-      setDonkeiResponses((prev) => ({
-        ...prev,
-        [post.id]: "Erro ao contactar o Donkei. Verifica a API key.",
-      }))
+      console.error(error)
+      setError("O Donkei não conseguiu responder agora.")
     }
 
     setLoadingDonkei(null)
+  }
+
+  function formatDate(date) {
+    if (!date) return "agora"
+
+    const created = new Date(date)
+    return created.toLocaleDateString("pt-PT", {
+      day: "2-digit",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
   }
 
   return (
@@ -150,77 +195,91 @@ function Forum() {
               placeholder="Escreve aqui a tua dúvida sobre programação, bases de dados, redes, sistemas operativos..."
             />
 
-            <button onClick={addQuestion}>Publicar anonimamente</button>
+            <button type="button" onClick={addQuestion}>
+              {loadingPost ? "A publicar..." : "Publicar anonimamente"}
+            </button>
+
+            {error && <p className="forum-error">{error}</p>}
           </div>
         </GlareHover>
 
         <div className="forum-feed">
-          {posts.map((post) => (
-            <GlareHover className="forum-post" key={post.id}>
-              <div className="post-up">
-                <button onClick={() => upPost(post.id)}>↑</button>
-                <span>{post.ups}</span>
-              </div>
-
-              <div className="post-content">
-                <div className="post-header">
-                  <div className="anonymous-avatar">?</div>
-
-                  <div>
-                    <strong>{post.author}</strong>
-                    <span>{post.time}</span>
-                  </div>
-                </div>
-
-                <p className="post-question">{post.question}</p>
-
-                <span className="post-tag">#{post.tag}</span>
-
-                <div className="post-actions">
-                  <button onClick={() => activateDonkei(post)}>
-                    🐴 Donkei
+          {posts.length === 0 ? (
+            <div className="forum-empty">
+              <h3>Ainda não há perguntas.</h3>
+              <p>Publica a primeira dúvida no fórum.</p>
+            </div>
+          ) : (
+            posts.map((post) => (
+              <GlareHover className="forum-post" key={post.id}>
+                <div className="post-up">
+                  <button type="button" onClick={() => upPost(post)}>
+                    ↑
                   </button>
+                  <span>{post.votes || 0}</span>
                 </div>
 
-                {loadingDonkei === post.id && (
-                  <div className="donkei-box">
-                    Donkei está a pensar...
-                  </div>
-                )}
+                <div className="post-content">
+                  <div className="post-header">
+                    <div className="anonymous-avatar">?</div>
 
-                {donkeiResponses[post.id] && (
-                  <div className="donkei-box">
-                    <div className="donkei-title">Donkei explica:</div>
-                    <p>{donkeiResponses[post.id]}</p>
-                  </div>
-                )}
-
-                <div className="reply-box">
-                  <input
-                    value={replyTexts[post.id] || ""}
-                    onChange={(event) =>
-                      setReplyTexts({
-                        ...replyTexts,
-                        [post.id]: event.target.value,
-                      })
-                    }
-                    placeholder="Responder anonimamente..."
-                  />
-
-                  <button onClick={() => addReply(post.id)}>Responder</button>
-                </div>
-
-                <div className="replies">
-                  {post.replies.map((reply) => (
-                    <div className="reply" key={reply.id}>
-                      <strong>{reply.author}</strong>
-                      <p>{reply.text}</p>
+                    <div>
+                      <strong>Anónimo</strong>
+                      <span>{formatDate(post.created_at)}</span>
                     </div>
-                  ))}
+                  </div>
+
+                  <p className="post-question">{post.question}</p>
+
+                  <span className="post-tag">#{post.tag || "geral"}</span>
+
+                  <div className="post-actions">
+                    <button type="button" onClick={() => activateDonkei(post)}>
+                      🐴 Donkei
+                    </button>
+                  </div>
+
+                  {loadingDonkei === post.id && (
+                    <div className="donkei-box">Donkei está a pensar...</div>
+                  )}
+
+                  {post.donkei_answer && (
+                    <div className="donkei-box">
+                      <div className="donkei-title">Donkei explica:</div>
+                      <p>{post.donkei_answer}</p>
+                    </div>
+                  )}
+
+                  <div className="reply-box">
+                    <input
+                      value={replyTexts[post.id] || ""}
+                      onChange={(event) =>
+                        setReplyTexts({
+                          ...replyTexts,
+                          [post.id]: event.target.value,
+                        })
+                      }
+                      placeholder="Responder anonimamente..."
+                    />
+
+                    <button type="button" onClick={() => addReply(post)}>
+                      Responder
+                    </button>
+                  </div>
+
+                  <div className="replies">
+                    {Array.isArray(post.replies) &&
+                      post.replies.map((reply) => (
+                        <div className="reply" key={reply.id}>
+                          <strong>{reply.author || "Anónimo"}</strong>
+                          <p>{reply.text}</p>
+                        </div>
+                      ))}
+                  </div>
                 </div>
-              </div>
-            </GlareHover>
-          ))}
+              </GlareHover>
+            ))
+          )}
         </div>
       </div>
     </section>

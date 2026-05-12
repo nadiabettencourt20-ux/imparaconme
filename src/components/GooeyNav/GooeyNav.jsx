@@ -3,11 +3,11 @@ import "./GooeyNav.css"
 
 function GooeyNav({
   items,
-  animationTime = 600,
+  animationTime = 500,
   particleCount = 15,
   particleDistances = [90, 10],
   particleR = 100,
-  timeVariance = 300,
+  timeVariance = 100,
   colors = [1, 2, 3, 1, 2, 3, 1, 4],
   initialActiveIndex = 0,
 }) {

@@ -318,3 +318,23 @@ body {
   -webkit-backdrop-filter: inherit;
   backdrop-filter: inherit;
 }
+
+button,
+a,
+input,
+textarea,
+select,
+label {
+  pointer-events: auto;
+  position: relative;
+  z-index: 20;
+}
+
+.site-header,
+.gooey-nav,
+.upload-hub-section,
+.forum-section {
+  pointer-events: auto;
+  position: relative;
+  z-index: 50;
+}

@@ -290,3 +290,27 @@
     padding: 12px;
   }
 }
+
+.forum-error {
+  margin-top: 14px;
+  color: #ff8aa8;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.forum-empty {
+  padding: 34px;
+  border-radius: 28px;
+  background: rgba(5, 8, 22, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: white;
+}
+
+.forum-empty h3 {
+  margin-bottom: 8px;
+  font-size: 1.6rem;
+}
+
+.forum-empty p {
+  color: rgba(255, 255, 255, 0.68);
+}
