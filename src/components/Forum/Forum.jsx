@@ -22,7 +22,7 @@ function Forum() {
       .order("created_at", { ascending: false })
 
     if (error) {
-      console.error(error)
+      console.error("Erro ao carregar fórum:", error)
       setError("Não foi possível carregar o fórum.")
       return
     }
@@ -51,8 +51,8 @@ function Forum() {
       .single()
 
     if (error) {
-      console.error(error)
-      setError("Não foi possível publicar a pergunta.")
+      console.error("Erro ao publicar:", error)
+      setError(`Não foi possível publicar a pergunta: ${error.message}`)
       setLoadingPost(false)
       return
     }
@@ -71,14 +71,10 @@ function Forum() {
       )
     )
 
-    const { error } = await supabase
+    await supabase
       .from("forum_posts")
       .update({ votes: newVotes })
       .eq("id", post.id)
-
-    if (error) {
-      console.error(error)
-    }
   }
 
   async function addReply(post) {
@@ -104,14 +100,10 @@ function Forum() {
 
     setReplyTexts({ ...replyTexts, [post.id]: "" })
 
-    const { error } = await supabase
+    await supabase
       .from("forum_posts")
       .update({ replies: updatedReplies })
       .eq("id", post.id)
-
-    if (error) {
-      console.error(error)
-    }
   }
 
   async function activateDonkei(post) {
@@ -142,16 +134,12 @@ function Forum() {
         )
       )
 
-      const { error } = await supabase
+      await supabase
         .from("forum_posts")
         .update({ donkei_answer: answer })
         .eq("id", post.id)
-
-      if (error) {
-        console.error(error)
-      }
     } catch (error) {
-      console.error(error)
+      console.error("Erro Donkei:", error)
       setError("O Donkei não conseguiu responder agora.")
     }
 
@@ -161,8 +149,7 @@ function Forum() {
   function formatDate(date) {
     if (!date) return "agora"
 
-    const created = new Date(date)
-    return created.toLocaleDateString("pt-PT", {
+    return new Date(date).toLocaleDateString("pt-PT", {
       day: "2-digit",
       month: "short",
       hour: "2-digit",
@@ -216,6 +203,7 @@ function Forum() {
                   <button type="button" onClick={() => upPost(post)}>
                     ↑
                   </button>
+
                   <span>{post.votes || 0}</span>
                 </div>
 
