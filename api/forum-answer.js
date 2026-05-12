@@ -1,9 +1,3 @@
-import OpenAI from "openai"
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({
@@ -12,31 +6,53 @@ export default async function handler(req, res) {
   }
 
   try {
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(500).json({
+        error: "OPENAI_API_KEY não encontrada no Vercel",
+      })
+    }
+
     const { question } = req.body
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4.1-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "És o Donkei, uma IA que explica informática de forma simples e curta.",
+    const response = await fetch(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         },
-        {
-          role: "user",
-          content: question,
-        },
-      ],
-    })
+        body: JSON.stringify({
+          model: "gpt-4.1-mini",
+          messages: [
+            {
+              role: "system",
+              content:
+                "Tu és o Donkei, uma IA que explica informática da forma mais simples possível, em português europeu.",
+            },
+            {
+              role: "user",
+              content: question,
+            },
+          ],
+        }),
+      }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      return res.status(500).json({
+        error: data.error?.message || "Erro da OpenAI",
+      })
+    }
 
     return res.status(200).json({
-      answer: response.choices[0].message.content,
+      answer: data.choices[0].message.content,
     })
   } catch (error) {
-    console.error(error)
-
     return res.status(500).json({
-      error: "Erro ao contactar OpenAI",
+      error: error.message || "Erro interno",
     })
   }
 }
