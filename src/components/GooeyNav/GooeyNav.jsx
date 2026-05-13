@@ -154,7 +154,7 @@ function GooeyNav({
   }, [activeIndex])
 
   return (
-    <div className="gooey-nav-container" ref={containerRef}>
+    <div className="gooey-nav-container notranslate" translate="no" ref={containerRef}>
       <nav>
         <ul ref={navRef}>
           {items.map((item, index) => (

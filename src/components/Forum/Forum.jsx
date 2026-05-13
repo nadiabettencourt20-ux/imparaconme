@@ -158,7 +158,7 @@ function Forum() {
   }
 
   return (
-    <section className="forum-section" id="forum">
+    <section className="forum-section notranslate" id="forum" translate="no">
       <div className="forum-intro">
         <span className="forum-badge">Fórum anónimo</span>
 
@@ -201,15 +201,21 @@ function Forum() {
               <GlareHover className="forum-post" key={post.id}>
                 <div className="post-up">
                   <button type="button" onClick={() => upPost(post)}>
-                    ↑
+                    <span className="notranslate" translate="no">
+                      ↑
+                    </span>
                   </button>
 
-                  <span>{post.votes || 0}</span>
+                  <span className="notranslate" translate="no">
+                    {post.votes || 0}
+                  </span>
                 </div>
 
                 <div className="post-content">
                   <div className="post-header">
-                    <div className="anonymous-avatar">?</div>
+                    <div className="anonymous-avatar notranslate" translate="no">
+                      ?
+                    </div>
 
                     <div>
                       <strong>Anónimo</strong>
@@ -222,7 +228,12 @@ function Forum() {
                   <span className="post-tag">#{post.tag || "geral"}</span>
 
                   <div className="post-actions">
-                    <button type="button" onClick={() => activateDonkei(post)}>
+                    <button
+                      type="button"
+                      className="notranslate"
+                      translate="no"
+                      onClick={() => activateDonkei(post)}
+                    >
                       🐴 Donkei
                     </button>
                   </div>
@@ -233,7 +244,9 @@ function Forum() {
 
                   {post.donkei_answer && (
                     <div className="donkei-box">
-                      <div className="donkei-title">Donkei explica:</div>
+                      <div className="donkei-title notranslate" translate="no">
+                        Donkei explica:
+                      </div>
                       <p>{post.donkei_answer}</p>
                     </div>
                   )}

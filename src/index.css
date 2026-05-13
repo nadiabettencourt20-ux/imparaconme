@@ -419,3 +419,8 @@ button:hover,
 a:hover {
   transform: translateY(-2px);
 }
+
+.notranslate,
+.notranslate * {
+  translate: no;
+}
