@@ -7,7 +7,6 @@ import {
 } from "react-icons/fa"
 
 import GooeyNav from "./components/GooeyNav/GooeyNav"
-import AutoTranslate from "./components/AutoTranslate/AutoTranslate"
 import Hyperspeed from "./components/Hyperspeed/Hyperspeed"
 import { hyperspeedPresets } from "./components/Hyperspeed/hyperspeedPresets"
 import RotatingText from "./components/RotatingText/RotatingText"
@@ -49,7 +48,6 @@ function App() {
 
   return (
     <div className="app">
-      <AutoTranslate />
       <TargetCursor
         targetSelector="a, button, h1, h2, h3, p, textarea, input, .rotating-main, .title-interactive, .forum-post, .forum-composer, .upload-card"
         spinDuration={2}
