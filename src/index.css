@@ -424,3 +424,22 @@ a:hover {
 .notranslate * {
   translate: no;
 }
+
+html,
+body,
+#root,
+.notranslate,
+.notranslate * {
+  translate: no !important;
+}
+
+font,
+.goog-te-banner-frame,
+.goog-te-balloon-frame,
+.skiptranslate {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
