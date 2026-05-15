@@ -140,6 +140,7 @@ function Forum({ texts = defaultTexts }) {
         },
         body: JSON.stringify({
           question: post.question,
+          lang: navigator.language?.split("-")[0] || "pt",
         }),
       })
 
@@ -153,7 +154,9 @@ function Forum({ texts = defaultTexts }) {
 
       setPosts(
         posts.map((item) =>
-          item.id === post.id ? { ...item, donkei_answer: answer } : item
+          item.id === post.id
+            ? { ...item, donkei_answer: answer }
+            : item
         )
       )
 
@@ -266,6 +269,7 @@ function Forum({ texts = defaultTexts }) {
                       <div className="donkei-title notranslate" translate="no">
                         {t.donkeiExplains}
                       </div>
+
                       <p>{post.donkei_answer}</p>
                     </div>
                   )}

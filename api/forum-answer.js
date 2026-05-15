@@ -12,7 +12,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { question } = req.body
+    const { question, lang } = req.body
+
+    const languageMap = {
+      pt: "português europeu",
+      en: "English",
+      es: "español",
+      fr: "français",
+      it: "italiano",
+      de: "Deutsch",
+      ar: "العربية",
+    }
+
+    const responseLanguage = languageMap[lang] || "a mesma língua da pergunta"
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -21,20 +33,25 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "llama-3.1-8b-instant",
         messages: [
           {
             role: "system",
-            content:
-              "Tu és o Donkei, uma IA simpática que explica informática da forma mais simples possível, em português europeu, para iniciantes.",
+            content: `
+Tu és o Donkei, um assistente académico amigável.
+Explicas informática de forma simples, curta e clara.
+Responde em ${responseLanguage}.
+Se a pergunta estiver noutra língua, responde nessa mesma língua.
+Não mudes para português se a pergunta não estiver em português.
+            `,
           },
           {
             role: "user",
-            content: question || "Explica esta dúvida de informática de forma simples.",
+            content: question || "Explain what computer science is.",
           },
         ],
         temperature: 0.4,
-        max_tokens: 350,
+        max_tokens: 450,
       }),
     })
 
