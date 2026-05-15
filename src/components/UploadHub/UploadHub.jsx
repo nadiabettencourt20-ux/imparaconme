@@ -5,28 +5,99 @@ import ScrollStack, { ScrollStackItem } from "../ScrollStack/ScrollStack"
 import GlareHover from "../GlareHover/GlareHover"
 import "./UploadHub.css"
 
-const languages = ["Português", "English", "Español", "Français", "Italiano", "Deutsch", "العربية"]
+const defaultTexts = {
+  badge: "Upload inteligente",
+  title: "Transforma documentos em jornais de estudo.",
+  description:
+    "Envia sebentas, PDFs, resumos ou códigos. O sistema organiza o material e cria layouts modernos inspirados em revistas e jornais.",
+  languageTitle: "Escolhe a língua",
+  layoutTitle: "Escolhe o layout",
+  documentTitle: "Envia o documento",
+  titlePlaceholder: "Título do material",
+  uploadButton: "Clica para fazer upload",
+  uploading: "A publicar o material...",
+  fileTypes: "PDF, Word, imagem, texto, slides ou código",
+  lastFile: "Último ficheiro:",
+  categoriesTitle: "Categorias",
+  categoriesDescription:
+    "Os materiais são organizados por categorias para facilitar a navegação.",
+  newspapersTitle: "Jornais de estudo",
+  newspapersDescription: "Cada upload gera um layout visual diferente.",
+  emptyTitle: "Ainda não há jornais publicados.",
+  emptyText:
+    "Faz upload de um documento para criar o primeiro jornal de estudo.",
+  openOriginal: "Abrir original",
+}
+
+const languages = [
+  "Português",
+  "English",
+  "Español",
+  "Français",
+  "Italiano",
+  "Deutsch",
+  "العربية",
+]
 
 const templates = [
-  { id: "poster", name: "Poster editorial", description: "Imagem grande, título forte e composição tipo capa." },
-  { id: "magazine", name: "Revista limpa", description: "Layout claro, elegante, inspirado em revistas modernas." },
-  { id: "columns", name: "Colunas jornal", description: "Visual académico organizado em blocos e colunas." },
-  { id: "image-focus", name: "Imagem principal", description: "Grande destaque visual com resumo abaixo." },
-  { id: "cards", name: "Cards informativos", description: "Pequenos blocos rápidos para estudar." },
-  { id: "minimal", name: "Minimal académico", description: "Design limpo e elegante para leitura rápida." },
+  {
+    id: "poster",
+    name: "Poster editorial",
+    description: "Imagem grande, título forte e composição tipo capa.",
+  },
+  {
+    id: "magazine",
+    name: "Revista limpa",
+    description: "Layout claro, elegante, inspirado em revistas modernas.",
+  },
+  {
+    id: "columns",
+    name: "Colunas jornal",
+    description: "Visual académico organizado em blocos e colunas.",
+  },
+  {
+    id: "image-focus",
+    name: "Imagem principal",
+    description: "Grande destaque visual com resumo abaixo.",
+  },
+  {
+    id: "cards",
+    name: "Cards informativos",
+    description: "Pequenos blocos rápidos para estudar.",
+  },
+  {
+    id: "minimal",
+    name: "Minimal académico",
+    description: "Design limpo e elegante para leitura rápida.",
+  },
 ]
 
 const categoryImages = {
-  Matemática: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop",
-  Programação: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",
-  Redes: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop",
-  "Bases de Dados": "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?q=80&w=1200&auto=format&fit=crop",
-  Algoritmos: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop",
+  Matemática:
+    "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop",
+  Programação:
+    "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",
+  Redes:
+    "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop",
+  "Bases de Dados":
+    "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?q=80&w=1200&auto=format&fit=crop",
+  Algoritmos:
+    "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop",
 }
 
 async function readFileText(file) {
-  const textTypes = ["text/plain", "text/javascript", "text/css", "text/html", "application/json"]
-  if (textTypes.includes(file.type) || file.name.endsWith(".txt")) return await file.text()
+  const textTypes = [
+    "text/plain",
+    "text/javascript",
+    "text/css",
+    "text/html",
+    "application/json",
+  ]
+
+  if (textTypes.includes(file.type) || file.name.endsWith(".txt")) {
+    return await file.text()
+  }
+
   return ""
 }
 
@@ -38,7 +109,9 @@ function safeJsonParse(text) {
   }
 }
 
-export default function UploadHub() {
+export default function UploadHub({ texts = defaultTexts }) {
+  const t = { ...defaultTexts, ...texts }
+
   const [selectedLanguage, setSelectedLanguage] = useState("Português")
   const [selectedTemplate, setSelectedTemplate] = useState("poster")
   const [selectedCategory, setSelectedCategory] = useState("Programação")
@@ -58,7 +131,9 @@ export default function UploadHub() {
     []
   )
 
-  const filteredMaterials = materials.filter((material) => material.category === selectedCategory)
+  const filteredMaterials = materials.filter(
+    (material) => material.category === selectedCategory
+  )
 
   useEffect(() => {
     loadMaterials()
@@ -74,7 +149,9 @@ export default function UploadHub() {
   }
 
   function scrollToNewspapers() {
-    document.getElementById("newspapers")?.scrollIntoView({ behavior: "smooth", block: "start" })
+    document
+      .getElementById("newspapers")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" })
   }
 
   async function generateNewspaperData({ title, file, fileText }) {
@@ -100,10 +177,15 @@ export default function UploadHub() {
   }
 
   async function uploadOriginalFile(file) {
-    const safeName = file.name.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9.-]/g, "")
+    const safeName = file.name
+      .replace(/\s+/g, "-")
+      .replace(/[^a-zA-Z0-9.-]/g, "")
+
     const filePath = `${Date.now()}-${safeName}`
 
-    const { error } = await supabase.storage.from("materials").upload(filePath, file)
+    const { error } = await supabase.storage
+      .from("materials")
+      .upload(filePath, file)
 
     if (error) throw error
 
@@ -127,7 +209,9 @@ export default function UploadHub() {
       const originalUrl = await uploadOriginalFile(file)
       const aiData = await generateNewspaperData({ title, file, fileText })
 
-      const category = categoryImages[aiData.category] ? aiData.category : "Programação"
+      const category = categoryImages[aiData.category]
+        ? aiData.category
+        : "Programação"
 
       const newMaterial = {
         title: aiData.title || title,
@@ -144,7 +228,12 @@ export default function UploadHub() {
         preview_image: categoryImages[category],
       }
 
-      const { data, error } = await supabase.from("materials").insert([newMaterial]).select().single()
+      const { data, error } = await supabase
+        .from("materials")
+        .insert([newMaterial])
+        .select()
+        .single()
+
       if (error) throw error
 
       setMaterials([data, ...materials])
@@ -163,8 +252,13 @@ export default function UploadHub() {
     if (!material.original_url) return null
 
     return (
-      <a href={material.original_url} target="_blank" rel="noopener noreferrer" className="open-original-btn">
-        Abrir original
+      <a
+        href={material.original_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="open-original-btn"
+      >
+        {t.openOriginal}
       </a>
     )
   }
@@ -193,9 +287,14 @@ export default function UploadHub() {
     }
 
     return (
-      <article className={`newspaper-card ${material.template}-template newspaper-card-${index % 3}`}>
+      <article
+        className={`newspaper-card ${material.template}-template newspaper-card-${index % 3}`}
+      >
         <div className="newspaper-image">
-          <img src={material.preview_image || categoryImages[material.category]} alt={material.category} />
+          <img
+            src={material.preview_image || categoryImages[material.category]}
+            alt={material.category}
+          />
         </div>
 
         <div className="newspaper-content">
@@ -224,21 +323,18 @@ export default function UploadHub() {
   }
 
   return (
-    <section className="upload-hub-section" id="upload">
+    <section className="upload-hub-section notranslate" id="upload" translate="no">
       <div className="upload-hub-hero">
-        <span className="upload-hub-badge">Upload inteligente</span>
-        <h2>Transforma documentos em jornais de estudo.</h2>
-        <p>
-          Envia sebentas, PDFs, resumos ou códigos. O sistema organiza o material e cria layouts modernos inspirados em
-          revistas e jornais.
-        </p>
+        <span className="upload-hub-badge">{t.badge}</span>
+        <h2>{t.title}</h2>
+        <p>{t.description}</p>
       </div>
 
       <div className="upload-steps-3d">
         <GlareHover className="upload-step-card">
           <div className="upload-step-content">
             <span>01</span>
-            <h3>Escolhe a língua</h3>
+            <h3>{t.languageTitle}</h3>
 
             <div className="language-grid">
               {languages.map((language) => (
@@ -258,14 +354,16 @@ export default function UploadHub() {
         <GlareHover className="upload-step-card">
           <div className="upload-step-content">
             <span>02</span>
-            <h3>Escolhe o layout</h3>
+            <h3>{t.layoutTitle}</h3>
 
             <div className="template-grid">
               {templates.map((template) => (
                 <button
                   type="button"
                   key={template.id}
-                  className={`template-card ${selectedTemplate === template.id ? "active" : ""}`}
+                  className={`template-card ${
+                    selectedTemplate === template.id ? "active" : ""
+                  }`}
                   onClick={() => setSelectedTemplate(template.id)}
                 >
                   <strong>{template.name}</strong>
@@ -280,12 +378,12 @@ export default function UploadHub() {
       <GlareHover className="upload-main-card">
         <div className="upload-step-content">
           <span>03</span>
-          <h3>Envia o documento</h3>
+          <h3>{t.documentTitle}</h3>
 
           <input
             value={materialTitle}
             onChange={(event) => setMaterialTitle(event.target.value)}
-            placeholder="Título do material"
+            placeholder={t.titlePlaceholder}
             className="upload-title-input"
           />
 
@@ -297,11 +395,16 @@ export default function UploadHub() {
               onChange={handleUpload}
             />
 
-            <strong>{isGenerating ? "A publicar o material..." : "Clica para fazer upload"}</strong>
-            <small>PDF, Word, imagem, texto, slides ou código</small>
+            <strong>{isGenerating ? t.uploading : t.uploadButton}</strong>
+            <small>{t.fileTypes}</small>
           </label>
 
-          {fileName && <p className="upload-file-name">Último ficheiro: {fileName}</p>}
+          {fileName && (
+            <p className="upload-file-name">
+              {t.lastFile} {fileName}
+            </p>
+          )}
+
           {error && <p className="upload-error">{error}</p>}
         </div>
       </GlareHover>
@@ -309,8 +412,8 @@ export default function UploadHub() {
       <div className="upload-menu-block">
         <div className="upload-block-heading">
           <span>04</span>
-          <h3>Categorias</h3>
-          <p>Os materiais são organizados por categorias para facilitar a navegação.</p>
+          <h3>{t.categoriesTitle}</h3>
+          <p>{t.categoriesDescription}</p>
         </div>
 
         <div className="flowing-menu-holder">
@@ -333,14 +436,14 @@ export default function UploadHub() {
       <div className="newspaper-area" id="newspapers">
         <div className="upload-block-heading">
           <span>05</span>
-          <h3>Jornais de estudo</h3>
-          <p>Cada upload gera um layout visual diferente.</p>
+          <h3>{t.newspapersTitle}</h3>
+          <p>{t.newspapersDescription}</p>
         </div>
 
         {materials.length === 0 ? (
           <div className="empty-newspaper-state">
-            <h4>Ainda não há jornais publicados.</h4>
-            <p>Faz upload de um documento para criar o primeiro jornal de estudo.</p>
+            <h4>{t.emptyTitle}</h4>
+            <p>{t.emptyText}</p>
           </div>
         ) : (
           <ScrollStack
@@ -353,9 +456,13 @@ export default function UploadHub() {
             rotationAmount={1.2}
             blurAmount={0.4}
           >
-            {(filteredMaterials.length > 0 ? filteredMaterials : materials).map((material, index) => (
-              <ScrollStackItem key={material.id}>{renderTemplate(material, index)}</ScrollStackItem>
-            ))}
+            {(filteredMaterials.length > 0 ? filteredMaterials : materials).map(
+              (material, index) => (
+                <ScrollStackItem key={material.id}>
+                  {renderTemplate(material, index)}
+                </ScrollStackItem>
+              )
+            )}
           </ScrollStack>
         )}
       </div>

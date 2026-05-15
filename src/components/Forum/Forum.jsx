@@ -3,7 +3,29 @@ import { supabase } from "../../lib/supabase"
 import GlareHover from "../GlareHover/GlareHover"
 import "./Forum.css"
 
-function Forum() {
+const defaultTexts = {
+  badge: "Fórum anónimo",
+  title: "Aprende informática sem medo de perguntar.",
+  description:
+    "Publica dúvidas de forma anónima, responde a outras pessoas e usa o Donkei para transformar explicações difíceis em algo simples, direto e fácil de entender.",
+  askTitle: "Faz uma pergunta",
+  placeholder:
+    "Escreve aqui a tua dúvida sobre programação, bases de dados, redes, sistemas operativos...",
+  publish: "Publicar anonimamente",
+  publishing: "A publicar...",
+  emptyTitle: "Ainda não há perguntas.",
+  emptyText: "Publica a primeira dúvida no fórum.",
+  anonymous: "Anónimo",
+  general: "geral",
+  donkeiThinking: "Donkei está a pensar...",
+  donkeiExplains: "Donkei explica:",
+  replyPlaceholder: "Responder anonimamente...",
+  reply: "Responder",
+}
+
+function Forum({ texts = defaultTexts }) {
+  const t = { ...defaultTexts, ...texts }
+
   const [posts, setPosts] = useState([])
   const [question, setQuestion] = useState("")
   const [replyTexts, setReplyTexts] = useState({})
@@ -121,11 +143,12 @@ function Forum() {
         }),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error("Erro ao contactar o Donkei.")
+        throw new Error(data.error || "Erro ao contactar o Donkei.")
       }
 
-      const data = await response.json()
       const answer = data.answer
 
       setPosts(
@@ -140,7 +163,7 @@ function Forum() {
         .eq("id", post.id)
     } catch (error) {
       console.error("Erro Donkei:", error)
-      setError("O Donkei não conseguiu responder agora.")
+      setError(error.message || "O Donkei não conseguiu responder agora.")
     }
 
     setLoadingDonkei(null)
@@ -160,30 +183,26 @@ function Forum() {
   return (
     <section className="forum-section notranslate" id="forum" translate="no">
       <div className="forum-intro">
-        <span className="forum-badge">Fórum anónimo</span>
+        <span className="forum-badge">{t.badge}</span>
 
-        <h2>Aprende informática sem medo de perguntar.</h2>
+        <h2>{t.title}</h2>
 
-        <p>
-          Publica dúvidas de forma anónima, responde a outras pessoas e usa o
-          <strong> Donkei</strong> para transformar explicações difíceis em algo
-          simples, direto e fácil de entender.
-        </p>
+        <p>{t.description}</p>
       </div>
 
       <div className="forum-layout">
         <GlareHover className="forum-composer">
           <div className="forum-composer-content">
-            <h3>Faz uma pergunta</h3>
+            <h3>{t.askTitle}</h3>
 
             <textarea
               value={question}
               onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Escreve aqui a tua dúvida sobre programação, bases de dados, redes, sistemas operativos..."
+              placeholder={t.placeholder}
             />
 
             <button type="button" onClick={addQuestion}>
-              {loadingPost ? "A publicar..." : "Publicar anonimamente"}
+              {loadingPost ? t.publishing : t.publish}
             </button>
 
             {error && <p className="forum-error">{error}</p>}
@@ -193,8 +212,8 @@ function Forum() {
         <div className="forum-feed">
           {posts.length === 0 ? (
             <div className="forum-empty">
-              <h3>Ainda não há perguntas.</h3>
-              <p>Publica a primeira dúvida no fórum.</p>
+              <h3>{t.emptyTitle}</h3>
+              <p>{t.emptyText}</p>
             </div>
           ) : (
             posts.map((post) => (
@@ -218,14 +237,14 @@ function Forum() {
                     </div>
 
                     <div>
-                      <strong>Anónimo</strong>
+                      <strong>{t.anonymous}</strong>
                       <span>{formatDate(post.created_at)}</span>
                     </div>
                   </div>
 
                   <p className="post-question">{post.question}</p>
 
-                  <span className="post-tag">#{post.tag || "geral"}</span>
+                  <span className="post-tag">#{post.tag || t.general}</span>
 
                   <div className="post-actions">
                     <button
@@ -239,13 +258,13 @@ function Forum() {
                   </div>
 
                   {loadingDonkei === post.id && (
-                    <div className="donkei-box">Donkei está a pensar...</div>
+                    <div className="donkei-box">{t.donkeiThinking}</div>
                   )}
 
                   {post.donkei_answer && (
                     <div className="donkei-box">
                       <div className="donkei-title notranslate" translate="no">
-                        Donkei explica:
+                        {t.donkeiExplains}
                       </div>
                       <p>{post.donkei_answer}</p>
                     </div>
@@ -260,11 +279,11 @@ function Forum() {
                           [post.id]: event.target.value,
                         })
                       }
-                      placeholder="Responder anonimamente..."
+                      placeholder={t.replyPlaceholder}
                     />
 
                     <button type="button" onClick={() => addReply(post)}>
-                      Responder
+                      {t.reply}
                     </button>
                   </div>
 
@@ -272,7 +291,7 @@ function Forum() {
                     {Array.isArray(post.replies) &&
                       post.replies.map((reply) => (
                         <div className="reply" key={reply.id}>
-                          <strong>{reply.author || "Anónimo"}</strong>
+                          <strong>{reply.author || t.anonymous}</strong>
                           <p>{reply.text}</p>
                         </div>
                       ))}
