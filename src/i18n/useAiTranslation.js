@@ -1,13 +1,36 @@
 import { useEffect, useState } from "react"
 
-const defaultLang = "pt"
+const allowedLanguages = ["pt", "en", "es", "fr", "it", "de", "ar"]
 
 function getDeviceLanguage() {
-  const lang = navigator.language?.split("-")[0] || defaultLang
+  const browserLang = navigator.language?.split("-")[0] || "pt"
+  return allowedLanguages.includes(browserLang) ? browserLang : "pt"
+}
 
-  const allowed = ["pt", "en", "es", "fr", "it", "de", "ar"]
+function deepMerge(original, translated) {
+  if (!translated || typeof translated !== "object") return original
 
-  return allowed.includes(lang) ? lang : defaultLang
+  const result = Array.isArray(original) ? [...original] : { ...original }
+
+  Object.keys(original).forEach((key) => {
+    if (Array.isArray(original[key])) {
+      result[key] = Array.isArray(translated[key])
+        ? translated[key]
+        : original[key]
+    } else if (
+      original[key] &&
+      typeof original[key] === "object"
+    ) {
+      result[key] = deepMerge(original[key], translated[key])
+    } else {
+      result[key] =
+        typeof translated[key] === "string" && translated[key].trim()
+          ? translated[key]
+          : original[key]
+    }
+  })
+
+  return result
 }
 
 export function useAiTranslation(originalTexts) {
@@ -19,16 +42,23 @@ export function useAiTranslation(originalTexts) {
     async function translateTexts() {
       if (lang === "pt") {
         setTexts(originalTexts)
+        document.documentElement.dir = "ltr"
         return
       }
 
-      const cacheKey = `translation-${lang}`
+      const cacheKey = `imparaconme-translation-${lang}`
 
-      const cached = localStorage.getItem(cacheKey)
+      try {
+        const cached = localStorage.getItem(cacheKey)
 
-      if (cached) {
-        setTexts(JSON.parse(cached))
-        return
+        if (cached) {
+          const parsed = JSON.parse(cached)
+          setTexts(deepMerge(originalTexts, parsed))
+          document.documentElement.dir = lang === "ar" ? "rtl" : "ltr"
+          return
+        }
+      } catch {
+        localStorage.removeItem(cacheKey)
       }
 
       setLoading(true)
@@ -47,12 +77,18 @@ export function useAiTranslation(originalTexts) {
 
         const data = await response.json()
 
-        if (data.translatedTexts) {
-          setTexts(data.translatedTexts)
-          localStorage.setItem(cacheKey, JSON.stringify(data.translatedTexts))
+        if (!response.ok || !data.translatedTexts) {
+          setTexts(originalTexts)
+          return
         }
+
+        const safeTexts = deepMerge(originalTexts, data.translatedTexts)
+
+        setTexts(safeTexts)
+        localStorage.setItem(cacheKey, JSON.stringify(safeTexts))
+        document.documentElement.dir = lang === "ar" ? "rtl" : "ltr"
       } catch (error) {
-        console.error("Erro ao traduzir:", error)
+        console.error("Erro na tradução:", error)
         setTexts(originalTexts)
       }
 
