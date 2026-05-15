@@ -19,13 +19,37 @@ import LogoLoop from "./components/LogoLoop/LogoLoop"
 import UploadHub from "./components/UploadHub/UploadHub"
 import GradualBlur from "./components/GradualBlur/GradualBlur"
 
+import { useAiTranslation } from "./i18n/useAiTranslation"
+
 function App() {
   const titleRef = useRef(null)
 
+  const originalTexts = {
+    home: "Home",
+    forum: "Fórum",
+    upload: "Upload",
+
+    rotatingPrefix: "Aprende com",
+
+    title: "Impara con me",
+
+    description:
+      "Uma biblioteca universitária futurística para organizar sebentas, códigos, exercícios, materiais, dúvidas e uploads.",
+
+    rotating1: "sebentas",
+    rotating2: "códigos",
+    rotating3: "resumos",
+    rotating4: "exercícios",
+    rotating5: "fórum",
+    rotating6: "uploads",
+  }
+
+  const { texts } = useAiTranslation(originalTexts)
+
   const items = [
-    { label: "Home", href: "#home" },
-    { label: "Fórum", href: "#forum" },
-    { label: "Upload", href: "#upload" },
+    { label: texts.home, href: "#home" },
+    { label: texts.forum, href: "#forum" },
+    { label: texts.upload, href: "#upload" },
   ]
 
   const socialLinks = [
@@ -47,7 +71,7 @@ function App() {
   ]
 
   return (
-    <div className="app">
+    <div className="app notranslate" translate="no">
       <TargetCursor
         targetSelector="a, button, h1, h2, h3, p, textarea, input, .rotating-main, .title-interactive, .forum-post, .forum-composer, .upload-card"
         spinDuration={2}
@@ -95,7 +119,7 @@ function App() {
               className="title-gradient"
             >
               <VariableProximity
-                label="Impara con me"
+                label={texts.title}
                 className="title-variable"
                 fromFontVariationSettings="'wght' 650, 'opsz' 18"
                 toFontVariationSettings="'wght' 1000, 'opsz' 80"
@@ -107,16 +131,16 @@ function App() {
           </h1>
 
           <div className="hero-rotating">
-            <span>Aprende com</span>
+            <span>{texts.rotatingPrefix}</span>
 
             <RotatingText
               texts={[
-                "sebentas",
-                "códigos",
-                "resumos",
-                "exercícios",
-                "fórum",
-                "uploads",
+                texts.rotating1,
+                texts.rotating2,
+                texts.rotating3,
+                texts.rotating4,
+                texts.rotating5,
+                texts.rotating6,
               ]}
               mainClassName="rotating-main"
               staggerFrom="last"
@@ -139,7 +163,7 @@ function App() {
 
           <p className="hero-description">
             <DecryptedText
-              text="Uma biblioteca universitária futurística para organizar sebentas, códigos, exercícios, materiais, dúvidas e uploads."
+              text={texts.description}
               speed={45}
               maxIterations={12}
               characters="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*"
