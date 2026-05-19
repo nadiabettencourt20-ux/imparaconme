@@ -111,6 +111,22 @@ function safeJsonParse(text) {
   }
 }
 
+function createSafeFilePath(file) {
+  const extension = file.name.includes(".")
+    ? file.name.split(".").pop().toLowerCase()
+    : "file"
+
+  const safeExtension = extension.replace(/[^a-z0-9]/g, "") || "file"
+
+  let uniqueId = Date.now().toString()
+
+  if (window.crypto && window.crypto.randomUUID) {
+    uniqueId = window.crypto.randomUUID()
+  }
+
+  return `${Date.now()}-${uniqueId}.${safeExtension}`
+}
+
 export default function UploadHub({ texts = defaultTexts }) {
   const t = { ...defaultTexts, ...texts }
 
@@ -147,7 +163,9 @@ export default function UploadHub({ texts = defaultTexts }) {
       .select("*")
       .order("created_at", { ascending: false })
 
-    if (!error) setMaterials(data || [])
+    if (!error) {
+      setMaterials(data || [])
+    }
   }
 
   function scrollToNewspapers() {
@@ -159,7 +177,9 @@ export default function UploadHub({ texts = defaultTexts }) {
   async function generateNewspaperData({ title, file, fileText }) {
     const response = await fetch("/api/generate-newspaper", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         title,
         fileName: file.name,
@@ -169,12 +189,12 @@ export default function UploadHub({ texts = defaultTexts }) {
       }),
     })
 
-    const data = await response.json()
-
     if (!response.ok) {
-      throw new Error(data.error || "Erro ao gerar jornal.")
+      const data = await response.json().catch(() => null)
+      throw new Error(data?.error || "Erro ao gerar jornal.")
     }
 
+    const data = await response.json()
     const aiData = safeJsonParse(data.content)
 
     if (!aiData) {
@@ -185,17 +205,15 @@ export default function UploadHub({ texts = defaultTexts }) {
   }
 
   async function uploadOriginalFile(file) {
-    const safeName = file.name
-      .replace(/\s+/g, "-")
-      .replace(/[^a-zA-Z0-9.-]/g, "")
-
-    const filePath = `${Date.now()}-${safeName}`
+    const filePath = createSafeFilePath(file)
 
     const { error } = await supabase.storage
       .from(STORAGE_BUCKET)
       .upload(filePath, file)
 
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const { data } = supabase.storage
       .from(STORAGE_BUCKET)
@@ -206,13 +224,15 @@ export default function UploadHub({ texts = defaultTexts }) {
 
   async function handleUpload(event) {
     const file = event.target.files?.[0]
+
     if (!file) return
 
     setError("")
     setIsGenerating(true)
     setFileName(file.name)
 
-    const title = materialTitle.trim() || file.name.replace(/\.[^/.]+$/, "")
+    const title =
+      materialTitle.trim() || file.name.replace(/\.[^/.]+$/, "")
 
     try {
       const fileText = await readFileText(file)
@@ -236,7 +256,11 @@ export default function UploadHub({ texts = defaultTexts }) {
         summary: aiData.summary || "Resumo criado automaticamente.",
         highlights: Array.isArray(aiData.highlights)
           ? aiData.highlights.slice(0, 3)
-          : ["Documento organizado.", "Resumo criado.", "Original guardado."],
+          : [
+              "Documento organizado.",
+              "Resumo criado.",
+              "Original guardado.",
+            ],
         type: aiData.type || "Jornal de estudo",
         original_name: file.name,
         original_url: originalUrl,
@@ -249,7 +273,9 @@ export default function UploadHub({ texts = defaultTexts }) {
         .select()
         .single()
 
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
       setMaterials([data, ...materials])
       setSelectedCategory(category)
@@ -257,7 +283,7 @@ export default function UploadHub({ texts = defaultTexts }) {
       setTimeout(scrollToNewspapers, 250)
     } catch (err) {
       console.error(err)
-      setError(err.message || "Não foi possível publicar o material agora.")
+      setError(err?.message || "Não foi possível publicar o material agora.")
     }
 
     setIsGenerating(false)
@@ -303,7 +329,9 @@ export default function UploadHub({ texts = defaultTexts }) {
 
     return (
       <article
-        className={`newspaper-card ${material.template}-template newspaper-card-${index % 3}`}
+        className={`newspaper-card ${material.template}-template newspaper-card-${
+          index % 3
+        }`}
       >
         <div className="newspaper-image">
           <img
@@ -397,6 +425,7 @@ export default function UploadHub({ texts = defaultTexts }) {
       <GlareHover className="upload-main-card">
         <div className="upload-step-content">
           <span>03</span>
+
           <h3>{t.documentTitle}</h3>
 
           <input
@@ -414,7 +443,10 @@ export default function UploadHub({ texts = defaultTexts }) {
               onChange={handleUpload}
             />
 
-            <strong>{isGenerating ? t.uploading : t.uploadButton}</strong>
+            <strong>
+              {isGenerating ? t.uploading : t.uploadButton}
+            </strong>
+
             <small>{t.fileTypes}</small>
           </label>
 
