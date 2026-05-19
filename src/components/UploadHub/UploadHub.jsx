@@ -5,7 +5,7 @@ import ScrollStack, { ScrollStackItem } from "../ScrollStack/ScrollStack"
 import GlareHover from "../GlareHover/GlareHover"
 import "./UploadHub.css"
 
-const STORAGE_BUCKET = "MATERIALS"
+const STORAGE_BUCKET = "materials"
 
 const defaultTexts = {
   badge: "Upload inteligente",
