@@ -3,7 +3,11 @@ import { supabase } from "../../lib/supabase"
 import FlowingMenu from "../FlowingMenu/FlowingMenu"
 import ScrollStack, { ScrollStackItem } from "../ScrollStack/ScrollStack"
 import GlareHover from "../GlareHover/GlareHover"
+import * as pdfjsLib from "pdfjs-dist"
+import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url"
 import "./UploadHub.css"
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker
 
 const STORAGE_BUCKET = "materials"
 
@@ -87,7 +91,50 @@ const categoryImages = {
     "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop",
 }
 
+async function readPdfText(file) {
+  const arrayBuffer = await file.arrayBuffer()
+
+  const pdf = await pdfjsLib.getDocument({
+    data: arrayBuffer,
+    useWorkerFetch: false,
+    isEvalSupported: false,
+    disableFontFace: true,
+  }).promise
+
+  let finalText = ""
+  const maxPages = Math.min(pdf.numPages, 25)
+
+  for (let pageNumber = 1; pageNumber <= maxPages; pageNumber++) {
+    const page = await pdf.getPage(pageNumber)
+    const content = await page.getTextContent()
+
+    const pageText = content.items
+      .map((item) => item.str)
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim()
+
+    if (pageText) {
+      finalText += `\n\nPágina ${pageNumber}:\n${pageText}`
+    }
+  }
+
+  const cleanedText = finalText.trim()
+
+  if (!cleanedText) {
+    throw new Error("Não consegui extrair texto deste PDF.")
+  }
+
+  return cleanedText.slice(0, 18000)
+}
+
 async function readFileText(file) {
+  const fileName = file.name.toLowerCase()
+
+  if (file.type === "application/pdf" || fileName.endsWith(".pdf")) {
+    return await readPdfText(file)
+  }
+
   const textTypes = [
     "text/plain",
     "text/javascript",
@@ -96,8 +143,17 @@ async function readFileText(file) {
     "application/json",
   ]
 
-  if (textTypes.includes(file.type) || file.name.endsWith(".txt")) {
-    return await file.text()
+  if (
+    textTypes.includes(file.type) ||
+    fileName.endsWith(".txt") ||
+    fileName.endsWith(".js") ||
+    fileName.endsWith(".jsx") ||
+    fileName.endsWith(".css") ||
+    fileName.endsWith(".html") ||
+    fileName.endsWith(".json")
+  ) {
+    const text = await file.text()
+    return text.slice(0, 18000)
   }
 
   return ""
@@ -109,22 +165,6 @@ function safeJsonParse(text) {
   } catch {
     return null
   }
-}
-
-function createSafeFilePath(file) {
-  const extension = file.name.includes(".")
-    ? file.name.split(".").pop().toLowerCase()
-    : "file"
-
-  const safeExtension = extension.replace(/[^a-z0-9]/g, "") || "file"
-
-  let uniqueId = Date.now().toString()
-
-  if (window.crypto && window.crypto.randomUUID) {
-    uniqueId = window.crypto.randomUUID()
-  }
-
-  return `${Date.now()}-${uniqueId}.${safeExtension}`
 }
 
 export default function UploadHub({ texts = defaultTexts }) {
@@ -175,6 +215,10 @@ export default function UploadHub({ texts = defaultTexts }) {
   }
 
   async function generateNewspaperData({ title, file, fileText }) {
+    if (!fileText || fileText.trim().length < 20) {
+      throw new Error("O ficheiro foi enviado, mas não consegui ler texto suficiente.")
+    }
+
     const response = await fetch("/api/generate-newspaper", {
       method: "POST",
       headers: {
@@ -189,12 +233,12 @@ export default function UploadHub({ texts = defaultTexts }) {
       }),
     })
 
+    const data = await response.json()
+
     if (!response.ok) {
-      const data = await response.json().catch(() => null)
-      throw new Error(data?.error || "Erro ao gerar jornal.")
+      throw new Error(data.error || "Erro ao gerar jornal.")
     }
 
-    const data = await response.json()
     const aiData = safeJsonParse(data.content)
 
     if (!aiData) {
@@ -205,7 +249,8 @@ export default function UploadHub({ texts = defaultTexts }) {
   }
 
   async function uploadOriginalFile(file) {
-    const filePath = createSafeFilePath(file)
+    const extension = file.name.split(".").pop() || "file"
+    const filePath = `${Date.now()}-${crypto.randomUUID()}.${extension}`
 
     const { error } = await supabase.storage
       .from(STORAGE_BUCKET)
@@ -231,8 +276,7 @@ export default function UploadHub({ texts = defaultTexts }) {
     setIsGenerating(true)
     setFileName(file.name)
 
-    const title =
-      materialTitle.trim() || file.name.replace(/\.[^/.]+$/, "")
+    const title = materialTitle.trim() || file.name.replace(/\.[^/.]+$/, "")
 
     try {
       const fileText = await readFileText(file)
@@ -256,11 +300,7 @@ export default function UploadHub({ texts = defaultTexts }) {
         summary: aiData.summary || "Resumo criado automaticamente.",
         highlights: Array.isArray(aiData.highlights)
           ? aiData.highlights.slice(0, 3)
-          : [
-              "Documento organizado.",
-              "Resumo criado.",
-              "Original guardado.",
-            ],
+          : ["Documento organizado.", "Resumo criado.", "Original guardado."],
         type: aiData.type || "Jornal de estudo",
         original_name: file.name,
         original_url: originalUrl,
@@ -283,7 +323,7 @@ export default function UploadHub({ texts = defaultTexts }) {
       setTimeout(scrollToNewspapers, 250)
     } catch (err) {
       console.error(err)
-      setError(err?.message || "Não foi possível publicar o material agora.")
+      setError(err.message || "Não foi possível publicar o material agora.")
     }
 
     setIsGenerating(false)
@@ -329,9 +369,7 @@ export default function UploadHub({ texts = defaultTexts }) {
 
     return (
       <article
-        className={`newspaper-card ${material.template}-template newspaper-card-${
-          index % 3
-        }`}
+        className={`newspaper-card ${material.template}-template newspaper-card-${index % 3}`}
       >
         <div className="newspaper-image">
           <img
@@ -366,11 +404,7 @@ export default function UploadHub({ texts = defaultTexts }) {
   }
 
   return (
-    <section
-      className="upload-hub-section notranslate"
-      id="upload"
-      translate="no"
-    >
+    <section className="upload-hub-section notranslate" id="upload" translate="no">
       <div className="upload-hub-hero">
         <span className="upload-hub-badge">{t.badge}</span>
         <h2>{t.title}</h2>
@@ -425,7 +459,6 @@ export default function UploadHub({ texts = defaultTexts }) {
       <GlareHover className="upload-main-card">
         <div className="upload-step-content">
           <span>03</span>
-
           <h3>{t.documentTitle}</h3>
 
           <input
@@ -443,10 +476,7 @@ export default function UploadHub({ texts = defaultTexts }) {
               onChange={handleUpload}
             />
 
-            <strong>
-              {isGenerating ? t.uploading : t.uploadButton}
-            </strong>
-
+            <strong>{isGenerating ? t.uploading : t.uploadButton}</strong>
             <small>{t.fileTypes}</small>
           </label>
 
