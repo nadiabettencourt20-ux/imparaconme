@@ -5,6 +5,8 @@ import ScrollStack, { ScrollStackItem } from "../ScrollStack/ScrollStack"
 import GlareHover from "../GlareHover/GlareHover"
 import "./UploadHub.css"
 
+const STORAGE_BUCKET = "MATERIALS"
+
 const defaultTexts = {
   badge: "Upload inteligente",
   title: "Transforma documentos em jornais de estudo.",
@@ -184,12 +186,14 @@ export default function UploadHub({ texts = defaultTexts }) {
     const filePath = `${Date.now()}-${safeName}`
 
     const { error } = await supabase.storage
-      .from("materials")
+      .from(STORAGE_BUCKET)
       .upload(filePath, file)
 
     if (error) throw error
 
-    const { data } = supabase.storage.from("materials").getPublicUrl(filePath)
+    const { data } = supabase.storage
+      .from(STORAGE_BUCKET)
+      .getPublicUrl(filePath)
 
     return data.publicUrl
   }
