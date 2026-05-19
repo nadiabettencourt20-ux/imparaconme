@@ -150,16 +150,12 @@ export default function UploadHub({ texts = defaultTexts }) {
     if (!error) setMaterials(data || [])
   }
 
-  function scrollToNewspapers() {
-    document
-      .getElementById("newspapers")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" })
-  }
-
   async function generateNewspaperData({ title, file, fileText }) {
     const response = await fetch("/api/generate-newspaper", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         title,
         fileName: file.name,
@@ -169,12 +165,18 @@ export default function UploadHub({ texts = defaultTexts }) {
       }),
     })
 
-    if (!response.ok) throw new Error("Erro ao gerar jornal.")
+    if (!response.ok) {
+      throw new Error("Erro ao gerar jornal.")
+    }
 
     const data = await response.json()
+
     const aiData = safeJsonParse(data.content)
 
-    if (!aiData) throw new Error("Resposta inválida.")
+    if (!aiData) {
+      throw new Error("Resposta inválida da IA.")
+    }
+
     return aiData
   }
 
@@ -189,7 +191,9 @@ export default function UploadHub({ texts = defaultTexts }) {
       .from(STORAGE_BUCKET)
       .upload(filePath, file)
 
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const { data } = supabase.storage
       .from(STORAGE_BUCKET)
@@ -200,18 +204,27 @@ export default function UploadHub({ texts = defaultTexts }) {
 
   async function handleUpload(event) {
     const file = event.target.files?.[0]
+
     if (!file) return
 
     setError("")
     setIsGenerating(true)
     setFileName(file.name)
 
-    const title = materialTitle.trim() || file.name.replace(/\.[^/.]+$/, "")
+    const title =
+      materialTitle.trim() ||
+      file.name.replace(/\.[^/.]+$/, "")
 
     try {
       const fileText = await readFileText(file)
+
       const originalUrl = await uploadOriginalFile(file)
-      const aiData = await generateNewspaperData({ title, file, fileText })
+
+      const aiData = await generateNewspaperData({
+        title,
+        file,
+        fileText,
+      })
 
       const category = categoryImages[aiData.category]
         ? aiData.category
@@ -222,10 +235,15 @@ export default function UploadHub({ texts = defaultTexts }) {
         category,
         language: selectedLanguage,
         template: selectedTemplate,
-        summary: aiData.summary || "Resumo criado automaticamente.",
+        summary:
+          aiData.summary || "Resumo criado automaticamente.",
         highlights: Array.isArray(aiData.highlights)
           ? aiData.highlights.slice(0, 3)
-          : ["Documento organizado.", "Resumo criado.", "Original guardado."],
+          : [
+              "Documento organizado.",
+              "Resumo criado.",
+              "Original guardado.",
+            ],
         type: aiData.type || "Jornal de estudo",
         original_name: file.name,
         original_url: originalUrl,
@@ -238,160 +256,60 @@ export default function UploadHub({ texts = defaultTexts }) {
         .select()
         .single()
 
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
       setMaterials([data, ...materials])
-      setSelectedCategory(category)
+
       setMaterialTitle("")
-      setTimeout(scrollToNewspapers, 250)
     } catch (err) {
       console.error(err)
-      setError("Não foi possível publicar o material agora.")
+
+      setError(
+        err?.message ||
+          "Não foi possível publicar o material agora."
+      )
     }
 
     setIsGenerating(false)
   }
 
-  function renderOpenButton(material) {
-    if (!material.original_url) return null
-
-    return (
-      <a
-        href={material.original_url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="open-original-btn"
-      >
-        {t.openOriginal}
-      </a>
-    )
-  }
-
-  function renderTemplate(material, index) {
-    if (material.template === "minimal") {
-      return (
-        <article className="newspaper-card minimal-template">
-          <div className="minimal-header">
-            <span>{material.category}</span>
-            <span>{material.language}</span>
-          </div>
-
-          <h4>{material.title}</h4>
-          <p>{material.summary}</p>
-
-          <div className="minimal-grid">
-            {material.highlights.map((highlight, i) => (
-              <div key={i}>{highlight}</div>
-            ))}
-          </div>
-
-          {renderOpenButton(material)}
-        </article>
-      )
-    }
-
-    return (
-      <article
-        className={`newspaper-card ${material.template}-template newspaper-card-${index % 3}`}
-      >
-        <div className="newspaper-image">
-          <img
-            src={material.preview_image || categoryImages[material.category]}
-            alt={material.category}
-          />
-        </div>
-
-        <div className="newspaper-content">
-          <div className="newspaper-meta">
-            <span>{material.category}</span>
-            <span>{material.language}</span>
-            <span>{material.type}</span>
-          </div>
-
-          <h4>{material.title}</h4>
-          <p>{material.summary}</p>
-
-          <div className="newspaper-highlights">
-            {material.highlights.map((highlight, i) => (
-              <div key={i}>
-                <strong>0{i + 1}</strong>
-                <span>{highlight}</span>
-              </div>
-            ))}
-          </div>
-
-          {renderOpenButton(material)}
-        </div>
-      </article>
-    )
-  }
-
   return (
-    <section className="upload-hub-section notranslate" id="upload" translate="no">
+    <section
+      className="upload-hub-section notranslate"
+      id="upload"
+      translate="no"
+    >
       <div className="upload-hub-hero">
-        <span className="upload-hub-badge">{t.badge}</span>
+        <span className="upload-hub-badge">
+          {t.badge}
+        </span>
+
         <h2>{t.title}</h2>
+
         <p>{t.description}</p>
-      </div>
-
-      <div className="upload-steps-3d">
-        <GlareHover className="upload-step-card">
-          <div className="upload-step-content">
-            <span>01</span>
-            <h3>{t.languageTitle}</h3>
-
-            <div className="language-grid">
-              {languages.map((language) => (
-                <button
-                  type="button"
-                  key={language}
-                  className={selectedLanguage === language ? "active" : ""}
-                  onClick={() => setSelectedLanguage(language)}
-                >
-                  {language}
-                </button>
-              ))}
-            </div>
-          </div>
-        </GlareHover>
-
-        <GlareHover className="upload-step-card">
-          <div className="upload-step-content">
-            <span>02</span>
-            <h3>{t.layoutTitle}</h3>
-
-            <div className="template-grid">
-              {templates.map((template) => (
-                <button
-                  type="button"
-                  key={template.id}
-                  className={`template-card ${
-                    selectedTemplate === template.id ? "active" : ""
-                  }`}
-                  onClick={() => setSelectedTemplate(template.id)}
-                >
-                  <strong>{template.name}</strong>
-                  <small>{template.description}</small>
-                </button>
-              ))}
-            </div>
-          </div>
-        </GlareHover>
       </div>
 
       <GlareHover className="upload-main-card">
         <div className="upload-step-content">
           <span>03</span>
+
           <h3>{t.documentTitle}</h3>
 
           <input
             value={materialTitle}
-            onChange={(event) => setMaterialTitle(event.target.value)}
+            onChange={(event) =>
+              setMaterialTitle(event.target.value)
+            }
             placeholder={t.titlePlaceholder}
             className="upload-title-input"
           />
 
-          <label className="upload-dropzone" htmlFor="material-upload">
+          <label
+            className="upload-dropzone"
+            htmlFor="material-upload"
+          >
             <input
               id="material-upload"
               type="file"
@@ -399,7 +317,12 @@ export default function UploadHub({ texts = defaultTexts }) {
               onChange={handleUpload}
             />
 
-            <strong>{isGenerating ? t.uploading : t.uploadButton}</strong>
+            <strong>
+              {isGenerating
+                ? t.uploading
+                : t.uploadButton}
+            </strong>
+
             <small>{t.fileTypes}</small>
           </label>
 
@@ -409,67 +332,13 @@ export default function UploadHub({ texts = defaultTexts }) {
             </p>
           )}
 
-          {error && <p className="upload-error">{error}</p>}
+          {error && (
+            <p className="upload-error">
+              {error}
+            </p>
+          )}
         </div>
       </GlareHover>
-
-      <div className="upload-menu-block">
-        <div className="upload-block-heading">
-          <span>04</span>
-          <h3>{t.categoriesTitle}</h3>
-          <p>{t.categoriesDescription}</p>
-        </div>
-
-        <div className="flowing-menu-holder">
-          <FlowingMenu
-            items={categoryItems}
-            speed={15}
-            textColor="#ffffff"
-            bgColor="rgba(5,8,22,0.72)"
-            marqueeBgColor="#00d4ff"
-            marqueeTextColor="#020617"
-            borderColor="rgba(255,255,255,0.18)"
-            onItemClick={(category) => {
-              setSelectedCategory(category)
-              setTimeout(scrollToNewspapers, 100)
-            }}
-          />
-        </div>
-      </div>
-
-      <div className="newspaper-area" id="newspapers">
-        <div className="upload-block-heading">
-          <span>05</span>
-          <h3>{t.newspapersTitle}</h3>
-          <p>{t.newspapersDescription}</p>
-        </div>
-
-        {materials.length === 0 ? (
-          <div className="empty-newspaper-state">
-            <h4>{t.emptyTitle}</h4>
-            <p>{t.emptyText}</p>
-          </div>
-        ) : (
-          <ScrollStack
-            itemDistance={90}
-            itemScale={0.035}
-            itemStackDistance={34}
-            stackPosition="18%"
-            scaleEndPosition="8%"
-            baseScale={0.84}
-            rotationAmount={1.2}
-            blurAmount={0.4}
-          >
-            {(filteredMaterials.length > 0 ? filteredMaterials : materials).map(
-              (material, index) => (
-                <ScrollStackItem key={material.id}>
-                  {renderTemplate(material, index)}
-                </ScrollStackItem>
-              )
-            )}
-          </ScrollStack>
-        )}
-      </div>
     </section>
   )
 }
