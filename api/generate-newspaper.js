@@ -49,7 +49,7 @@ ${fileText.slice(0, 18000)}
 Responde neste formato:
 {
   "title": "título curto e real do conteúdo",
-  "category": "Matemática",
+  "category": "Mathematics",
   "summary": "resumo claro do documento em 2 frases",
   "highlights": [
     "conceito principal 1",
