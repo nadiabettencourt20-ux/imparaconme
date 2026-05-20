@@ -6,6 +6,7 @@ import GlareHover from "../GlareHover/GlareHover"
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs"
 import pdfWorker from "pdfjs-dist/legacy/build/pdf.worker.min.mjs?url"
 import "./UploadHub.css"
+import MagazineJournal from "../MagazineJournal";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker
 
@@ -414,9 +415,20 @@ export default function UploadHub({ texts = defaultTexts }) {
 
       setMaterials(
         materials.map((material) =>
-          material.id === data.id ? data : material
-        )
-      )
+      <div className="journal-list">
+
+     {materials.map((material) => (
+
+     <MagazineJournal
+      key={material.id}
+      newspaper={material}
+      canDelete={true}
+      onDelete={handleDeleteMaterial}
+    />
+
+  ))}
+
+</div>
 
       setEditingMaterial(null)
     } catch (err) {
@@ -782,3 +794,21 @@ export default function UploadHub({ texts = defaultTexts }) {
     </section>
   )
 }
+
+const handleDeleteMaterial = async (id) => {
+
+  const confirmDelete = window.confirm(
+    "Eliminar este jornal?"
+  );
+
+  if (!confirmDelete) return;
+
+  await supabase
+    .from("materials")
+    .delete()
+    .eq("id", id);
+
+  setMaterials((prev) =>
+    prev.filter((m) => m.id !== id)
+  );
+};
