@@ -15,7 +15,7 @@ const defaultTexts = {
   badge: "Upload inteligente",
   title: "Transforma documentos em jornais visuais.",
   description:
-    "Envia PDFs, sebentas, códigos ou slides. A IA cria jornais de estudo em layouts visuais modernos.",
+    "Envia PDFs, sebentas, códigos ou slides. A IA cria jornais de estudo em várias páginas visuais.",
   languageTitle: "Escolhe a língua",
   layoutTitle: "Escolhe o layout",
   documentTitle: "Envia o documento",
@@ -27,7 +27,7 @@ const defaultTexts = {
   categoriesTitle: "Categorias",
   categoriesDescription: "Os materiais são organizados por categorias.",
   newspapersTitle: "Jornais de estudo",
-  newspapersDescription: "Cada upload gera uma página visual diferente.",
+  newspapersDescription: "Cada upload gera várias páginas visuais.",
   emptyTitle: "Ainda não há jornais publicados.",
   emptyText: "Faz upload de um documento para criar o primeiro jornal.",
   openOriginal: "Abrir original",
@@ -99,6 +99,10 @@ function createSafeId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
+function normalizeArray(value, fallback = []) {
+  return Array.isArray(value) && value.length > 0 ? value : fallback
+}
+
 function canDeleteMaterial(material, ownerSessionId) {
   if (material.owner_session_id !== ownerSessionId) return false
   if (!material.created_at) return false
@@ -125,7 +129,7 @@ async function readPdfText(file) {
   }).promise
 
   let text = ""
-  const maxPages = Math.min(pdf.numPages, 60)
+  const maxPages = Math.min(pdf.numPages, 80)
 
   for (let pageNumber = 1; pageNumber <= maxPages; pageNumber++) {
     const page = await pdf.getPage(pageNumber)
@@ -176,8 +180,37 @@ function safeJsonParse(text) {
   }
 }
 
-function normalizeArray(value, fallback = []) {
-  return Array.isArray(value) && value.length > 0 ? value : fallback
+function normalizePages(aiData) {
+  const pages = normalizeArray(aiData.pages, [])
+
+  if (pages.length > 0) return pages
+
+  return [
+    {
+      layout: "cover",
+      title: aiData.title || "Jornal de estudo",
+      body: aiData.lead || aiData.summary || "Introdução ao material.",
+      blocks: normalizeArray(aiData.highlights, []),
+    },
+    {
+      layout: "article",
+      title: "Resumo desenvolvido",
+      body: aiData.summary || "Resumo do conteúdo.",
+      blocks: normalizeArray(aiData.keywords, []),
+    },
+    {
+      layout: "infographic",
+      title: "Conceitos principais",
+      body: "Principais pontos para rever.",
+      blocks: normalizeArray(aiData.highlights, []),
+    },
+    {
+      layout: "study",
+      title: "Guia de estudo",
+      body: "Plano para estudar este material.",
+      blocks: normalizeArray(aiData.study_plan, []),
+    },
+  ]
 }
 
 export default function UploadHub({ texts = defaultTexts }) {
@@ -223,9 +256,7 @@ export default function UploadHub({ texts = defaultTexts }) {
       .select("*")
       .order("created_at", { ascending: false })
 
-    if (!error) {
-      setMaterials(data || [])
-    }
+    if (!error) setMaterials(data || [])
   }
 
   function scrollToNewspapers() {
@@ -317,28 +348,11 @@ export default function UploadHub({ texts = defaultTexts }) {
         visual_style: visualStyle,
         summary: aiData.summary || "Material organizado para estudo.",
         lead: aiData.lead || aiData.summary || "Introdução ao material.",
-        sections: normalizeArray(aiData.sections, [
-          {
-            title: "Resumo principal",
-            body: aiData.summary || "Resumo do documento.",
-          },
-        ]),
-        highlights: normalizeArray(aiData.highlights, [
-          "Documento analisado pela IA",
-          "Conteúdo organizado visualmente",
-          "Original guardado para consulta",
-        ]),
-        keywords: normalizeArray(aiData.keywords, [
-          "estudo",
-          "resumo",
-          "revisão",
-        ]),
-        study_plan: normalizeArray(aiData.study_plan, [
-          "Ler o resumo principal",
-          "Rever os conceitos",
-          "Abrir o original",
-          "Praticar exercícios",
-        ]),
+        sections: normalizeArray(aiData.sections, []),
+        highlights: normalizeArray(aiData.highlights, []),
+        keywords: normalizeArray(aiData.keywords, []),
+        study_plan: normalizeArray(aiData.study_plan, []),
+        pages: normalizePages(aiData),
         quote:
           aiData.quote ||
           "Organizar conhecimento é tornar o estudo mais claro.",
@@ -478,191 +492,116 @@ export default function UploadHub({ texts = defaultTexts }) {
     )
   }
 
-  function renderMagazineRed(material) {
-    const sections = normalizeArray(material.sections)
-    const highlights = normalizeArray(material.highlights)
-
+  function renderCoverPage(material, page, pageIndex) {
     return (
-      <article className="visual-newspaper magazine-red-layout">
-        <div className="red-blob red-blob-one" />
-        <div className="red-blob red-blob-two" />
+      <section className="journal-page journal-cover-page">
+        <div className="journal-page-number">PÁGINA {pageIndex + 1}</div>
+        <div className="journal-cover-image">
+          <img
+            src={material.preview_image || categoryImages[material.category]}
+            alt={material.category}
+          />
+        </div>
 
-        <div className="visual-header">
+        <div className="journal-cover-content">
           <span>{material.category}</span>
           <h4>{material.title}</h4>
           <p>{material.subtitle}</p>
+          <blockquote>“{material.quote}”</blockquote>
         </div>
+      </section>
+    )
+  }
 
-        <div className="red-grid">
-          <section>
-            <h5>{sections[0]?.title || "Introdução"}</h5>
-            <p>{sections[0]?.body || material.lead}</p>
-          </section>
+  function renderArticlePage(material, page, pageIndex) {
+    return (
+      <section className="journal-page journal-article-page">
+        <div className="journal-page-number">PÁGINA {pageIndex + 1}</div>
+        <span className="journal-kicker">{material.type}</span>
 
-          <section>
-            <h5>{sections[1]?.title || "Conceitos"}</h5>
-            <p>{sections[1]?.body || material.summary}</p>
-          </section>
-        </div>
+        <h4>{page.title}</h4>
+        <p className="journal-lead">{page.body}</p>
 
-        <div className="red-highlight-strip">
-          {highlights.slice(0, 3).map((item, index) => (
+        <div className="journal-article-columns">
+          {normalizeArray(page.blocks, []).map((block, index) => (
             <div key={index}>
               <strong>0{index + 1}</strong>
-              <span>{item}</span>
+              <p>{block}</p>
             </div>
           ))}
         </div>
-
-        <blockquote>{material.quote}</blockquote>
-
-        {renderOwnerActions(material)}
-        {renderOpenButton(material)}
-      </article>
+      </section>
     )
   }
 
-  function renderBlackWhiteNews(material) {
-    const sections = normalizeArray(material.sections)
-    const highlights = normalizeArray(material.highlights)
-
+  function renderInfographicPage(material, page, pageIndex) {
     return (
-      <article className="visual-newspaper black-white-layout">
-        <div className="news-kicker">NEWS FEATURE</div>
+      <section className="journal-page journal-infographic-page">
+        <div className="journal-page-number">PÁGINA {pageIndex + 1}</div>
 
-        <h4>{material.title}</h4>
-        <p className="news-lead">{material.lead}</p>
-
-        <div className="news-columns">
-          {sections.slice(0, 4).map((section, index) => (
-            <section key={index}>
-              <h5>{section.title}</h5>
-              <p>{section.body}</p>
-            </section>
-          ))}
-        </div>
-
-        <div className="big-quote">“{material.quote}”</div>
-
-        <aside>
-          {highlights.slice(0, 4).map((item, index) => (
-            <span key={index}>{item}</span>
-          ))}
-        </aside>
-
-        {renderOwnerActions(material)}
-        {renderOpenButton(material)}
-      </article>
-    )
-  }
-
-  function renderInfographicCards(material) {
-    const highlights = normalizeArray(material.highlights)
-    const keywords = normalizeArray(material.keywords)
-
-    return (
-      <article className="visual-newspaper infographic-layout">
-        <div className="circle-core">
+        <div className="journal-infographic-core">
           <span>{material.category}</span>
-          <h4>{material.title}</h4>
+          <h4>{page.title}</h4>
+          <p>{page.body}</p>
         </div>
 
-        <div className="info-nodes">
-          {highlights.slice(0, 5).map((item, index) => (
-            <div key={index} className={`node node-${index + 1}`}>
-              <strong>0{index + 1}</strong>
-              <p>{item}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="keyword-row">
-          {keywords.slice(0, 8).map((keyword, index) => (
-            <span key={index}>{keyword}</span>
-          ))}
-        </div>
-
-        {renderOwnerActions(material)}
-        {renderOpenButton(material)}
-      </article>
-    )
-  }
-
-  function renderTimeline(material) {
-    const studyPlan = normalizeArray(material.study_plan)
-    const sections = normalizeArray(material.sections)
-
-    return (
-      <article className="visual-newspaper timeline-layout">
-        <h4>{material.title}</h4>
-        <p>{material.subtitle}</p>
-
-        <div className="timeline-line">
-          {studyPlan.slice(0, 6).map((step, index) => (
+        <div className="journal-infographic-grid">
+          {normalizeArray(page.blocks, []).map((block, index) => (
             <div key={index}>
               <strong>{index + 1}</strong>
-              <span>{step}</span>
+              <span>{block}</span>
             </div>
           ))}
         </div>
-
-        <div className="timeline-sections">
-          {sections.slice(0, 3).map((section, index) => (
-            <section key={index}>
-              <h5>{section.title}</h5>
-              <p>{section.body}</p>
-            </section>
-          ))}
-        </div>
-
-        {renderOwnerActions(material)}
-        {renderOpenButton(material)}
-      </article>
+      </section>
     )
   }
 
-  function renderAcademicBook(material) {
-    const sections = normalizeArray(material.sections)
-    const keywords = normalizeArray(material.keywords)
+  function renderStudyPage(material, page, pageIndex) {
+    return (
+      <section className="journal-page journal-study-page">
+        <div className="journal-page-number">PÁGINA {pageIndex + 1}</div>
+
+        <h4>{page.title}</h4>
+        <p>{page.body}</p>
+
+        <ol>
+          {normalizeArray(page.blocks, []).map((block, index) => (
+            <li key={index}>{block}</li>
+          ))}
+        </ol>
+      </section>
+    )
+  }
+
+  function renderGenericPage(material, page, pageIndex) {
+    if (page.layout === "cover") return renderCoverPage(material, page, pageIndex)
+    if (page.layout === "infographic") {
+      return renderInfographicPage(material, page, pageIndex)
+    }
+    if (page.layout === "study" || page.layout === "timeline") {
+      return renderStudyPage(material, page, pageIndex)
+    }
+
+    return renderArticlePage(material, page, pageIndex)
+  }
+
+  function renderMaterial(material) {
+    const pages = normalizePages(material)
+    const style = material.visual_style || material.template || "magazine-red"
 
     return (
-      <article className="visual-newspaper academic-book-layout">
-        <div className="book-page left-page">
-          <span>{material.type}</span>
-          <h4>{material.title}</h4>
-          <p>{material.lead || material.summary}</p>
-
-          <div className="book-keywords">
-            {keywords.slice(0, 6).map((keyword, index) => (
-              <b key={index}>{keyword}</b>
-            ))}
-          </div>
-        </div>
-
-        <div className="book-page right-page">
-          {sections.slice(0, 4).map((section, index) => (
-            <section key={index}>
-              <h5>{section.title}</h5>
-              <p>{section.body}</p>
-            </section>
-          ))}
-
+      <article className={`multi-page-journal ${style}`}>
+        <div className="journal-actions-top">
           {renderOwnerActions(material)}
           {renderOpenButton(material)}
         </div>
+
+        {pages.map((page, pageIndex) => (
+          <div key={pageIndex}>{renderGenericPage(material, page, pageIndex)}</div>
+        ))}
       </article>
     )
-  }
-
-  function renderTemplate(material) {
-    const style = material.visual_style || material.template || "magazine-red"
-
-    if (style === "black-white-news") return renderBlackWhiteNews(material)
-    if (style === "infographic-cards") return renderInfographicCards(material)
-    if (style === "timeline-ui") return renderTimeline(material)
-    if (style === "academic-book") return renderAcademicBook(material)
-
-    return renderMagazineRed(material)
   }
 
   return (
@@ -831,24 +770,13 @@ export default function UploadHub({ texts = defaultTexts }) {
             <p>{t.emptyText}</p>
           </div>
         ) : (
-          <ScrollStack
-            itemDistance={120}
-            itemScale={0.025}
-            itemStackDistance={42}
-            stackPosition="15%"
-            scaleEndPosition="7%"
-            baseScale={0.9}
-            rotationAmount={0.8}
-            blurAmount={0.2}
-          >
+          <div className="journal-list">
             {(filteredMaterials.length > 0 ? filteredMaterials : materials).map(
               (material) => (
-                <ScrollStackItem key={material.id}>
-                  {renderTemplate(material)}
-                </ScrollStackItem>
+                <div key={material.id}>{renderMaterial(material)}</div>
               )
             )}
-          </ScrollStack>
+          </div>
         )}
       </div>
     </section>

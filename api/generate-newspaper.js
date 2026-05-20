@@ -22,9 +22,10 @@ export default async function handler(req, res) {
           {
             role: "system",
             content: `
-Cria um jornal/infográfico visual de estudo baseado no conteúdo real.
-Não faças resumo genérico.
-Cria conteúdo rico, dividido e organizado como revista, jornal ou infográfico.
+Cria um jornal de estudo visual, longo e dividido em várias páginas.
+Não faças resumo curto.
+Se o documento for grande, cria várias páginas.
+Cada página deve parecer uma página de revista/infográfico.
 Responde APENAS com JSON válido.
             `,
           },
@@ -37,7 +38,7 @@ Ficheiro: ${fileName}
 Tipo: ${fileType}
 
 Conteúdo:
-${fileText?.slice(0, 26000)}
+${fileText?.slice(0, 30000)}
 
 Formato obrigatório:
 {
@@ -45,31 +46,45 @@ Formato obrigatório:
   "subtitle": "subtítulo editorial",
   "category": "Matemática",
   "visual_style": "magazine-red",
-  "lead": "abertura estilo jornal",
-  "summary": "resumo desenvolvido",
-  "sections": [
-    { "title": "secção 1", "body": "texto completo" },
-    { "title": "secção 2", "body": "texto completo" },
-    { "title": "secção 3", "body": "texto completo" },
-    { "title": "secção 4", "body": "texto completo" }
-  ],
-  "highlights": ["ponto 1", "ponto 2", "ponto 3", "ponto 4", "ponto 5"],
-  "keywords": ["conceito 1", "conceito 2", "conceito 3", "conceito 4"],
+  "lead": "introdução forte",
+  "summary": "resumo desenvolvido em 6 a 10 frases",
+  "quote": "frase forte",
+  "keywords": ["conceito 1", "conceito 2", "conceito 3"],
   "study_plan": ["passo 1", "passo 2", "passo 3", "passo 4"],
-  "quote": "frase forte do tema",
+  "pages": [
+    {
+      "layout": "cover",
+      "title": "capa",
+      "body": "texto desenvolvido",
+      "blocks": ["bloco 1", "bloco 2", "bloco 3"]
+    },
+    {
+      "layout": "article",
+      "title": "secção importante",
+      "body": "texto longo e explicado",
+      "blocks": ["conceito", "exemplo", "observação"]
+    },
+    {
+      "layout": "infographic",
+      "title": "conceitos principais",
+      "body": "explicação",
+      "blocks": ["ponto 1", "ponto 2", "ponto 3", "ponto 4"]
+    }
+  ],
   "type": "Jornal de estudo"
 }
 
+Cria entre 4 e 8 páginas, dependendo do conteúdo.
 Categorias possíveis:
 "Matemática", "Programação", "Redes", "Bases de Dados", "Algoritmos"
 
-visual_style deve ser um destes:
+visual_style:
 "magazine-red", "black-white-news", "infographic-cards", "timeline-ui", "academic-book"
             `,
           },
         ],
         temperature: 0.35,
-        max_tokens: 1800,
+        max_tokens: 3500,
       }),
     })
 
