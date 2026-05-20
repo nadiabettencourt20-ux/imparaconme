@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react"
 import { supabase } from "../../lib/supabase"
 import FlowingMenu from "../FlowingMenu/FlowingMenu"
-import ScrollStack, { ScrollStackItem } from "../ScrollStack/ScrollStack"
 import GlareHover from "../GlareHover/GlareHover"
+import MagazineJournal from "../MagazineJournal"
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs"
 import pdfWorker from "pdfjs-dist/legacy/build/pdf.worker.min.mjs?url"
 import "./UploadHub.css"
-import MagazineJournal from "../MagazineJournal";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker
 
@@ -31,7 +30,6 @@ const defaultTexts = {
   newspapersDescription: "Cada upload gera várias páginas visuais.",
   emptyTitle: "Ainda não há jornais publicados.",
   emptyText: "Faz upload de um documento para criar o primeiro jornal.",
-  openOriginal: "Abrir original",
 }
 
 const languages = [
@@ -74,7 +72,10 @@ const templates = [
 
 const categoryImages = {
   Matemática:
-    "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop",
+    "https://images.unsplash.com/photo/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop".replace(
+      "photo/photo",
+      "photo"
+    ),
   Programação:
     "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",
   Redes:
@@ -102,21 +103,6 @@ function createSafeId() {
 
 function normalizeArray(value, fallback = []) {
   return Array.isArray(value) && value.length > 0 ? value : fallback
-}
-
-function canDeleteMaterial(material, ownerSessionId) {
-  if (material.owner_session_id !== ownerSessionId) return false
-  if (!material.created_at) return false
-
-  const createdAt = new Date(material.created_at).getTime()
-  const now = Date.now()
-  const twoHours = 2 * 60 * 60 * 1000
-
-  return now - createdAt <= twoHours
-}
-
-function canEditMaterial(material, ownerSessionId) {
-  return material.owner_session_id === ownerSessionId
 }
 
 async function readPdfText(file) {
@@ -190,6 +176,7 @@ function normalizePages(aiData) {
     {
       layout: "cover",
       title: aiData.title || "Jornal de estudo",
+      subtitle: aiData.subtitle || "Material académico",
       body: aiData.lead || aiData.summary || "Introdução ao material.",
       blocks: normalizeArray(aiData.highlights, []),
     },
@@ -415,20 +402,9 @@ export default function UploadHub({ texts = defaultTexts }) {
 
       setMaterials(
         materials.map((material) =>
-      <div className="journal-list">
-
-     {materials.map((material) => (
-
-     <MagazineJournal
-      key={material.id}
-      newspaper={material}
-      canDelete={true}
-      onDelete={handleDeleteMaterial}
-    />
-
-  ))}
-
-</div>
+          material.id === data.id ? data : material
+        )
+      )
 
       setEditingMaterial(null)
     } catch (err) {
@@ -437,7 +413,13 @@ export default function UploadHub({ texts = defaultTexts }) {
   }
 
   async function deleteMaterial(material) {
-    if (!canDeleteMaterial(material, ownerSessionId)) {
+    const createdAt = new Date(material.created_at).getTime()
+    const twoHours = 2 * 60 * 60 * 1000
+    const canDelete =
+      material.owner_session_id === ownerSessionId &&
+      Date.now() - createdAt <= twoHours
+
+    if (!canDelete) {
       setError("Só podes apagar este jornal até 2 horas depois de publicares.")
       return
     }
@@ -463,158 +445,8 @@ export default function UploadHub({ texts = defaultTexts }) {
     }
   }
 
-  function renderOpenButton(material) {
-    if (!material.original_url) return null
-
-    return (
-      <a
-        href={material.original_url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="open-original-btn"
-      >
-        {t.openOriginal}
-      </a>
-    )
-  }
-
-  function renderOwnerActions(material) {
-    const isOwner = material.owner_session_id === ownerSessionId
-
-    if (!isOwner) return null
-
-    return (
-      <div className="newspaper-owner-actions">
-        {canEditMaterial(material, ownerSessionId) && (
-          <button type="button" onClick={() => startEdit(material)}>
-            Editar
-          </button>
-        )}
-
-        {canDeleteMaterial(material, ownerSessionId) && (
-          <button
-            type="button"
-            className="danger"
-            onClick={() => deleteMaterial(material)}
-          >
-            Apagar
-          </button>
-        )}
-      </div>
-    )
-  }
-
-  function renderCoverPage(material, page, pageIndex) {
-    return (
-      <section className="journal-page journal-cover-page">
-        <div className="journal-page-number">PÁGINA {pageIndex + 1}</div>
-        <div className="journal-cover-image">
-          <img
-            src={material.preview_image || categoryImages[material.category]}
-            alt={material.category}
-          />
-        </div>
-
-        <div className="journal-cover-content">
-          <span>{material.category}</span>
-          <h4>{material.title}</h4>
-          <p>{material.subtitle}</p>
-          <blockquote>“{material.quote}”</blockquote>
-        </div>
-      </section>
-    )
-  }
-
-  function renderArticlePage(material, page, pageIndex) {
-    return (
-      <section className="journal-page journal-article-page">
-        <div className="journal-page-number">PÁGINA {pageIndex + 1}</div>
-        <span className="journal-kicker">{material.type}</span>
-
-        <h4>{page.title}</h4>
-        <p className="journal-lead">{page.body}</p>
-
-        <div className="journal-article-columns">
-          {normalizeArray(page.blocks, []).map((block, index) => (
-            <div key={index}>
-              <strong>0{index + 1}</strong>
-              <p>{block}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-    )
-  }
-
-  function renderInfographicPage(material, page, pageIndex) {
-    return (
-      <section className="journal-page journal-infographic-page">
-        <div className="journal-page-number">PÁGINA {pageIndex + 1}</div>
-
-        <div className="journal-infographic-core">
-          <span>{material.category}</span>
-          <h4>{page.title}</h4>
-          <p>{page.body}</p>
-        </div>
-
-        <div className="journal-infographic-grid">
-          {normalizeArray(page.blocks, []).map((block, index) => (
-            <div key={index}>
-              <strong>{index + 1}</strong>
-              <span>{block}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-    )
-  }
-
-  function renderStudyPage(material, page, pageIndex) {
-    return (
-      <section className="journal-page journal-study-page">
-        <div className="journal-page-number">PÁGINA {pageIndex + 1}</div>
-
-        <h4>{page.title}</h4>
-        <p>{page.body}</p>
-
-        <ol>
-          {normalizeArray(page.blocks, []).map((block, index) => (
-            <li key={index}>{block}</li>
-          ))}
-        </ol>
-      </section>
-    )
-  }
-
-  function renderGenericPage(material, page, pageIndex) {
-    if (page.layout === "cover") return renderCoverPage(material, page, pageIndex)
-    if (page.layout === "infographic") {
-      return renderInfographicPage(material, page, pageIndex)
-    }
-    if (page.layout === "study" || page.layout === "timeline") {
-      return renderStudyPage(material, page, pageIndex)
-    }
-
-    return renderArticlePage(material, page, pageIndex)
-  }
-
-  function renderMaterial(material) {
-    const pages = normalizePages(material)
-    const style = material.visual_style || material.template || "magazine-red"
-
-    return (
-      <article className={`multi-page-journal ${style}`}>
-        <div className="journal-actions-top">
-          {renderOwnerActions(material)}
-          {renderOpenButton(material)}
-        </div>
-
-        {pages.map((page, pageIndex) => (
-          <div key={pageIndex}>{renderGenericPage(material, page, pageIndex)}</div>
-        ))}
-      </article>
-    )
-  }
+  const shownMaterials =
+    filteredMaterials.length > 0 ? filteredMaterials : materials
 
   return (
     <section
@@ -776,39 +608,25 @@ export default function UploadHub({ texts = defaultTexts }) {
           </div>
         )}
 
-        {materials.length === 0 ? (
+        {shownMaterials.length === 0 ? (
           <div className="empty-newspaper-state">
             <h4>{t.emptyTitle}</h4>
             <p>{t.emptyText}</p>
           </div>
         ) : (
           <div className="journal-list">
-            {(filteredMaterials.length > 0 ? filteredMaterials : materials).map(
-              (material) => (
-                <div key={material.id}>{renderMaterial(material)}</div>
-              )
-            )}
+            {shownMaterials.map((material) => (
+              <MagazineJournal
+                key={material.id}
+                material={material}
+                ownerSessionId={ownerSessionId}
+                onEdit={startEdit}
+                onDelete={deleteMaterial}
+              />
+            ))}
           </div>
         )}
       </div>
     </section>
   )
 }
-
-const handleDeleteMaterial = async (id) => {
-
-  const confirmDelete = window.confirm(
-    "Eliminar este jornal?"
-  );
-
-  if (!confirmDelete) return;
-
-  await supabase
-    .from("materials")
-    .delete()
-    .eq("id", id);
-
-  setMaterials((prev) =>
-    prev.filter((m) => m.id !== id)
-  );
-};
