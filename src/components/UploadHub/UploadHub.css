@@ -1,925 +1,321 @@
-.upload-hub-section {
-  position: relative;
-  z-index: 10;
-  width: min(1180px, 92vw);
-  margin: 0 auto;
-  padding: 140px 0;
-  color: white;
+.upload-hub-section{
+  width:100%;
+  padding:120px 4vw;
+  color:white;
+  position:relative;
+  z-index:2;
 }
 
-.upload-hub-hero {
-  max-width: 850px;
-  margin-bottom: 60px;
+.journal-list{
+  display:flex;
+  flex-direction:column;
+  gap:120px;
+  margin-top:80px;
 }
 
-.upload-hub-badge {
-  display: inline-flex;
-  margin-bottom: 18px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  background: rgba(0, 212, 255, 0.12);
-  border: 1px solid rgba(0, 212, 255, 0.25);
-  color: #8eeeff;
-  font-size: 0.85rem;
-  font-weight: 900;
+.multi-page-journal{
+  display:flex;
+  flex-direction:column;
+  gap:70px;
 }
 
-.upload-hub-hero h2 {
-  font-size: clamp(2.6rem, 6vw, 5.8rem);
-  line-height: 0.95;
-  letter-spacing: -0.07em;
-  margin-bottom: 22px;
+.journal-page{
+  min-height:100vh;
+  border-radius:40px;
+  overflow:hidden;
+  position:relative;
+  display:grid;
+  background:white;
+  color:#050816;
+  box-shadow:
+  0 0 60px rgba(0,0,0,.35);
 }
 
-.upload-hub-hero p,
-.upload-block-heading p {
-  font-size: 1.08rem;
-  line-height: 1.8;
-  color: rgba(255, 255, 255, 0.72);
+/* ========= COVER PAGE ========= */
+
+.journal-cover-page{
+  grid-template-columns:1.2fr 1fr;
 }
 
-.upload-steps-3d {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 24px;
-  margin-bottom: 36px;
-  perspective: 1200px;
+.journal-cover-image img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 
-.upload-step-card {
-  min-height: 340px;
-  transform-style: preserve-3d;
-  position: relative;
-  z-index: 10;
+.journal-cover-content{
+  padding:90px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:30px;
 }
 
-.upload-main-card {
-  margin-bottom: 90px;
+.journal-cover-content span{
+  font-size:15px;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  opacity:.6;
 }
 
-.upload-step-content {
-  padding: 32px;
-  position: relative;
-  z-index: 20;
+.journal-cover-content h4{
+  font-size:90px;
+  line-height:.9;
+  font-weight:900;
 }
 
-.upload-step-content > span,
-.upload-block-heading span {
-  color: #00d4ff;
-  font-weight: 900;
-  font-size: 0.85rem;
+.journal-cover-content p{
+  font-size:24px;
+  line-height:1.6;
 }
 
-.upload-step-content h3,
-.upload-block-heading h3 {
-  margin: 10px 0 18px;
-  font-size: clamp(1.7rem, 3vw, 3rem);
-  letter-spacing: -0.05em;
+.journal-cover-content blockquote{
+  font-size:32px;
+  font-style:italic;
+  color:#ff008c;
 }
 
-.language-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-top: 22px;
+/* ========= ARTICLE ========= */
+
+.journal-article-page{
+  padding:90px;
+  background:#f8f8f8;
 }
 
-.language-grid button {
-  padding: 14px 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
-  color: white;
-  cursor: pointer;
-  font-weight: 800;
-  transition: 0.25s ease;
-  pointer-events: auto;
-  position: relative;
-  z-index: 30;
+.journal-kicker{
+  letter-spacing:5px;
+  text-transform:uppercase;
+  font-size:13px;
+  opacity:.5;
 }
 
-.language-grid button:hover {
-  transform: translateY(-2px);
-  border-color: rgba(0, 212, 255, 0.35);
+.journal-article-page h4{
+  font-size:70px;
+  margin-top:20px;
+  margin-bottom:30px;
+  font-weight:900;
 }
 
-.language-grid button.active {
-  background: linear-gradient(135deg, #00d4ff, #a855f7);
-  color: black;
+.journal-lead{
+  font-size:28px;
+  line-height:1.8;
+  max-width:1200px;
 }
 
-.template-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  margin-top: 22px;
+.journal-article-columns{
+  margin-top:60px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:40px;
 }
 
-.template-card {
-  position: relative;
-  min-height: 118px;
-  padding: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 24px;
+.journal-article-columns div{
+  background:white;
+  padding:35px;
+  border-radius:30px;
+}
+
+.journal-article-columns strong{
+  font-size:42px;
+  color:#ff008c;
+}
+
+.journal-article-columns p{
+  margin-top:20px;
+  line-height:1.8;
+  font-size:18px;
+}
+
+/* ========= INFOGRAPHIC ========= */
+
+.journal-infographic-page{
+  padding:100px;
   background:
-    radial-gradient(circle at top left, rgba(0, 212, 255, 0.16), transparent 38%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025));
-  color: white;
-  text-align: left;
-  cursor: pointer;
-  overflow: hidden;
-  pointer-events: auto;
-  z-index: 30;
-  transition:
-    transform 0.25s ease,
-    border-color 0.25s ease,
-    background 0.25s ease,
-    box-shadow 0.25s ease;
+  linear-gradient(135deg,#0f172a,#020617);
+  color:white;
 }
 
-.template-card::before {
-  content: "";
-  position: absolute;
-  inset: 12px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  pointer-events: none;
+.journal-infographic-core{
+  max-width:700px;
 }
 
-.template-card::after {
-  content: "";
-  position: absolute;
-  right: -30px;
-  bottom: -30px;
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  background: rgba(168, 85, 247, 0.24);
-  filter: blur(18px);
-  pointer-events: none;
+.journal-infographic-core span{
+  letter-spacing:4px;
+  text-transform:uppercase;
+  opacity:.5;
 }
 
-.template-card strong {
-  position: relative;
-  z-index: 2;
-  display: block;
-  font-size: 1rem;
-  font-weight: 950;
-  letter-spacing: -0.03em;
-  margin-bottom: 9px;
+.journal-infographic-core h4{
+  font-size:82px;
+  margin-top:20px;
 }
 
-.template-card small {
-  position: relative;
-  z-index: 2;
-  display: block;
-  font-size: 0.82rem;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.62);
+.journal-infographic-core p{
+  margin-top:20px;
+  font-size:24px;
+  line-height:1.7;
 }
 
-.template-card:hover {
-  transform: translateY(-4px) scale(1.01);
-  border-color: rgba(0, 212, 255, 0.42);
-  box-shadow:
-    0 0 24px rgba(0, 212, 255, 0.12),
-    inset 0 0 22px rgba(255, 255, 255, 0.04);
+.journal-infographic-grid{
+  margin-top:90px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:35px;
 }
 
-.template-card.active {
-  background:
-    radial-gradient(circle at top left, rgba(0, 212, 255, 0.38), transparent 42%),
-    linear-gradient(135deg, rgba(0, 212, 255, 0.22), rgba(168, 85, 247, 0.2));
-  border-color: rgba(0, 212, 255, 0.65);
-  box-shadow:
-    0 0 30px rgba(0, 212, 255, 0.22),
-    0 0 60px rgba(168, 85, 247, 0.12);
+.journal-infographic-grid div{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  backdrop-filter:blur(10px);
+  border-radius:35px;
+  padding:45px;
+  min-height:240px;
 }
 
-.template-card.active small {
-  color: rgba(255, 255, 255, 0.82);
+.journal-infographic-grid strong{
+  font-size:72px;
+  color:#00d4ff;
 }
 
-.upload-title-input {
-  width: 100%;
-  margin-bottom: 18px;
-  padding: 15px 18px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
-  color: white;
-  outline: none;
-  pointer-events: auto;
-  position: relative;
-  z-index: 30;
+.journal-infographic-grid span{
+  display:block;
+  margin-top:25px;
+  line-height:1.7;
+  font-size:22px;
 }
 
-.upload-title-input::placeholder {
-  color: rgba(255, 255, 255, 0.42);
+/* ========= STUDY PAGE ========= */
+
+.journal-study-page{
+  padding:100px;
+  background:white;
 }
 
-.upload-dropzone {
-  display: grid;
-  place-items: center;
-  min-height: 170px;
-  border-radius: 24px;
-  border: 1px dashed rgba(0, 212, 255, 0.45);
-  background: rgba(0, 212, 255, 0.08);
-  cursor: pointer;
-  text-align: center;
-  pointer-events: auto;
-  position: relative;
-  z-index: 30;
+.journal-study-page h4{
+  font-size:76px;
+  margin-bottom:30px;
 }
 
-.upload-dropzone input {
-  display: none;
+.journal-study-page p{
+  font-size:26px;
+  line-height:1.7;
 }
 
-.upload-dropzone strong {
-  font-size: 1.2rem;
+.journal-study-page ol{
+  margin-top:60px;
+  display:flex;
+  flex-direction:column;
+  gap:30px;
 }
 
-.upload-dropzone small {
-  margin-top: 8px;
-  color: rgba(255, 255, 255, 0.6);
+.journal-study-page li{
+  font-size:26px;
+  line-height:1.7;
+  background:#f4f4f4;
+  padding:35px;
+  border-radius:25px;
 }
 
-.upload-file-name {
-  margin-top: 14px;
-  color: #8eeeff;
+/* ========= PAGE NUMBER ========= */
+
+.journal-page-number{
+  position:absolute;
+  top:35px;
+  right:45px;
+  font-size:14px;
+  letter-spacing:3px;
+  opacity:.5;
 }
 
-.upload-error {
-  margin-top: 14px;
-  color: #ff8aa8;
-  font-weight: 700;
+/* ========= BUTTONS ========= */
+
+.open-original-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px 34px;
+  border-radius:999px;
+  background:#050816;
+  color:white;
+  text-decoration:none;
+  font-weight:700;
+  margin-top:40px;
+  width:max-content;
 }
 
-.upload-menu-block,
-.newspaper-area {
-  margin-top: 90px;
+.journal-actions-top{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
 }
 
-.flowing-menu-holder {
-  height: 560px;
-  margin-top: 28px;
-  border-radius: 32px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow:
-    0 0 35px rgba(0, 212, 255, 0.08),
-    inset 0 0 22px rgba(255, 255, 255, 0.03);
+.newspaper-owner-actions{
+  display:flex;
+  gap:15px;
 }
 
-.newspaper-area {
-  perspective: 1400px;
+.newspaper-owner-actions button{
+  border:none;
+  padding:16px 30px;
+  border-radius:999px;
+  cursor:pointer;
+  font-weight:700;
 }
 
-.newspaper-card {
-  height: 100%;
-  min-height: 24rem;
-  overflow: hidden;
-  border-radius: 40px;
-  color: #07111f;
-  box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.35),
-    0 0 55px rgba(0, 212, 255, 0.12);
+.newspaper-owner-actions .danger{
+  background:#ff004c;
+  color:white;
 }
 
-/* Template 1: Poster editorial */
-.poster-template {
-  display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(230, 245, 255, 0.92));
-}
+/* ========= RESPONSIVE ========= */
 
-.poster-template .newspaper-image {
-  min-height: 100%;
-}
+@media(max-width:1000px){
 
-/* Template 2: Revista limpa */
-.magazine-template,
-.newspaper-card-1 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: linear-gradient(135deg, #f4efe6, #dff8ff);
-}
-
-/* Template 3: Colunas jornal */
-.columns-template {
-  display: grid;
-  grid-template-columns: 1fr;
-  padding: 34px;
-  background: #f5f0e6;
-}
-
-.columns-template .newspaper-content {
-  column-count: 2;
-  column-gap: 34px;
-}
-
-/* Template 4: Imagem principal */
-.image-focus-template {
-  display: grid;
-  grid-template-rows: 48% 1fr;
-  background: #eef7ff;
-}
-
-.image-focus-template .newspaper-image {
-  min-height: 220px;
-}
-
-/* Template 5: Cards informativos */
-.cards-template {
-  display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
-  background: linear-gradient(135deg, #f5e9ff, #eef7ff);
-}
-
-.cards-template .newspaper-highlights {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-/* Template 6: Minimal académico */
-.minimal-template {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 44px;
-  background: #f7f5ef;
-}
-
-.minimal-header {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.minimal-header span {
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: rgba(7, 17, 31, 0.08);
-  font-size: 0.78rem;
-  font-weight: 900;
-}
-
-.minimal-template h4 {
-  font-size: clamp(2.4rem, 5vw, 5rem);
-  line-height: 0.92;
-  letter-spacing: -0.08em;
-  margin-bottom: 20px;
-}
-
-.minimal-template p {
-  max-width: 760px;
-  font-size: 1.05rem;
-  line-height: 1.7;
-  color: rgba(7, 17, 31, 0.78);
-}
-
-.minimal-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  margin-top: 24px;
-}
-
-.minimal-grid div {
-  padding: 16px;
-  border-radius: 20px;
-  background: rgba(7, 17, 31, 0.06);
-  line-height: 1.5;
-}
-
-.newspaper-image {
-  position: relative;
-  overflow: hidden;
-}
-
-.newspaper-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.newspaper-content {
-  padding: 34px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.newspaper-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 18px;
-}
-
-.newspaper-meta span {
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: rgba(7, 17, 31, 0.08);
-  font-size: 0.78rem;
-  font-weight: 900;
-}
-
-.newspaper-content h4 {
-  font-size: clamp(2rem, 4vw, 4rem);
-  line-height: 0.92;
-  letter-spacing: -0.07em;
-  margin-bottom: 18px;
-}
-
-.newspaper-content p {
-  font-size: 1rem;
-  line-height: 1.65;
-  color: rgba(7, 17, 31, 0.78);
-}
-
-.newspaper-highlights {
-  display: grid;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.newspaper-highlights div {
-  display: grid;
-  grid-template-columns: 46px 1fr;
-  gap: 12px;
-  align-items: start;
-}
-
-.newspaper-highlights strong {
-  color: #0077ff;
-}
-
-.newspaper-highlights span {
-  color: rgba(7, 17, 31, 0.76);
-}
-
-.open-original-btn {
-  margin-top: 24px;
-  width: fit-content;
-  padding: 13px 18px;
-  border-radius: 999px;
-  background: #07111f;
-  color: white;
-  font-weight: 900;
-  text-decoration: none;
-  transition: 0.25s ease;
-}
-
-.open-original-btn:hover {
-  transform: translateY(-2px);
-  opacity: 0.9;
-}
-
-@media (max-width: 900px) {
-  .upload-steps-3d,
-  .poster-template,
-  .magazine-template,
-  .cards-template,
-  .newspaper-card-1 {
-    grid-template-columns: 1fr;
+  .journal-cover-page{
+    grid-template-columns:1fr;
   }
 
-  .template-grid,
-  .minimal-grid,
-  .cards-template .newspaper-highlights {
-    grid-template-columns: 1fr;
+  .journal-cover-content{
+    padding:50px;
   }
 
-  .flowing-menu-holder {
-    height: 460px;
+  .journal-cover-content h4{
+    font-size:58px;
   }
 
-  .scroll-stack-scroller {
-    height: 760px;
+  .journal-article-page{
+    padding:45px;
   }
 
-  .columns-template .newspaper-content {
-    column-count: 1;
-  }
-}
-
-.empty-newspaper-state {
-  margin-top: 32px;
-  padding: 42px;
-  border-radius: 32px;
-  background: rgba(5, 8, 22, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: white;
-  text-align: center;
-}
-
-.empty-newspaper-state h4 {
-  font-size: clamp(1.8rem, 4vw, 3.2rem);
-  margin-bottom: 12px;
-  letter-spacing: -0.05em;
-}
-
-.empty-newspaper-state p {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.visual-newspaper {
-  width: min(980px, 92vw);
-  min-height: 720px;
-  border-radius: 36px;
-  padding: 42px;
-  position: relative;
-  overflow: hidden;
-  color: #111;
-  box-shadow: 0 30px 90px rgba(0,0,0,0.45);
-}
-
-.magazine-red-layout {
-  background: #f7efe7;
-}
-
-.red-blob {
-  position: absolute;
-  border-radius: 50%;
-  background: #e63946;
-  opacity: 0.95;
-}
-
-.red-blob-one {
-  width: 380px;
-  height: 380px;
-  right: -120px;
-  top: -120px;
-}
-
-.red-blob-two {
-  width: 260px;
-  height: 260px;
-  left: -80px;
-  bottom: -80px;
-}
-
-.visual-header {
-  position: relative;
-  z-index: 2;
-  max-width: 680px;
-}
-
-.visual-header span,
-.news-kicker {
-  font-weight: 900;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #e63946;
-}
-
-.visual-header h4,
-.black-white-layout h4,
-.timeline-layout h4,
-.academic-book-layout h4 {
-  font-size: clamp(3rem, 7vw, 6rem);
-  line-height: 0.88;
-  margin: 18px 0;
-  font-weight: 1000;
-}
-
-.visual-header p,
-.news-lead {
-  font-size: 1.25rem;
-  line-height: 1.7;
-}
-
-.red-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-top: 42px;
-}
-
-.red-grid section,
-.red-highlight-strip div,
-.timeline-sections section {
-  background: rgba(255,255,255,0.76);
-  padding: 24px;
-  border-radius: 24px;
-}
-
-.red-grid h5,
-.news-columns h5,
-.timeline-sections h5,
-.book-page h5 {
-  font-size: 1.25rem;
-  margin-bottom: 12px;
-  font-weight: 900;
-}
-
-.red-grid p,
-.news-columns p,
-.timeline-sections p,
-.book-page p {
-  line-height: 1.75;
-}
-
-.red-highlight-strip {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  margin-top: 30px;
-}
-
-.red-highlight-strip strong {
-  display: block;
-  font-size: 2.4rem;
-  color: #e63946;
-}
-
-.visual-newspaper blockquote {
-  position: relative;
-  z-index: 2;
-  margin-top: 34px;
-  padding-left: 24px;
-  border-left: 6px solid #e63946;
-  font-size: 1.4rem;
-  font-weight: 800;
-}
-
-.black-white-layout {
-  background: #f8f8f2;
-  border: 2px solid #111;
-  font-family: Georgia, serif;
-}
-
-.news-kicker {
-  color: #111;
-  border-bottom: 3px solid #111;
-  padding-bottom: 12px;
-}
-
-.news-columns {
-  columns: 3;
-  column-gap: 32px;
-  margin-top: 32px;
-}
-
-.news-columns section {
-  break-inside: avoid;
-  margin-bottom: 26px;
-}
-
-.big-quote {
-  margin-top: 34px;
-  font-size: 2rem;
-  font-weight: 900;
-  border-top: 3px solid #111;
-  border-bottom: 3px solid #111;
-  padding: 22px 0;
-}
-
-.black-white-layout aside {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-top: 26px;
-}
-
-.black-white-layout aside span {
-  border: 1px solid #111;
-  padding: 14px;
-  font-weight: 700;
-}
-
-.infographic-layout {
-  background: radial-gradient(circle at center, #ffffff, #dbeafe);
-  display: grid;
-  place-items: center;
-}
-
-.circle-core {
-  width: 310px;
-  height: 310px;
-  border-radius: 50%;
-  background: #111827;
-  color: white;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  padding: 28px;
-  z-index: 2;
-}
-
-.circle-core h4 {
-  font-size: 2rem;
-  line-height: 1;
-}
-
-.info-nodes {
-  position: absolute;
-  inset: 40px;
-}
-
-.node {
-  position: absolute;
-  width: 210px;
-  background: white;
-  border-radius: 24px;
-  padding: 18px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.18);
-}
-
-.node strong {
-  color: #2563eb;
-  font-size: 1.8rem;
-}
-
-.node-1 { top: 40px; left: 60px; }
-.node-2 { top: 60px; right: 70px; }
-.node-3 { bottom: 90px; left: 40px; }
-.node-4 { bottom: 60px; right: 70px; }
-.node-5 { top: 45%; right: 20px; }
-
-.keyword-row {
-  position: absolute;
-  bottom: 34px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-}
-
-.keyword-row span {
-  background: #111827;
-  color: white;
-  padding: 9px 14px;
-  border-radius: 999px;
-}
-
-.timeline-layout {
-  background: linear-gradient(135deg, #020617, #111827);
-  color: white;
-}
-
-.timeline-layout h4,
-.timeline-layout p,
-.timeline-layout span,
-.timeline-layout h5 {
-  color: white;
-}
-
-.timeline-line {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-  margin: 42px 0;
-}
-
-.timeline-line div {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 24px;
-  padding: 22px;
-}
-
-.timeline-line strong {
-  display: block;
-  font-size: 2.4rem;
-  color: #00d4ff;
-}
-
-.timeline-sections {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-}
-
-.timeline-sections section {
-  background: rgba(255,255,255,0.08);
-  color: white;
-}
-
-.academic-book-layout {
-  background: #e8dcc8;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px;
-  padding: 0;
-}
-
-.book-page {
-  padding: 54px;
-  background: #fffaf0;
-  min-height: 720px;
-}
-
-.book-page span {
-  letter-spacing: 0.18em;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.book-keywords {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 28px;
-}
-
-.book-keywords b {
-  background: #111;
-  color: white;
-  padding: 10px 14px;
-  border-radius: 999px;
-}
-
-.newspaper-owner-actions {
-  position: relative;
-  z-index: 5;
-  display: flex;
-  gap: 12px;
-  margin-top: 30px;
-}
-
-.newspaper-owner-actions button,
-.edit-newspaper-panel button {
-  border: none;
-  border-radius: 999px;
-  padding: 12px 20px;
-  cursor: pointer;
-  font-weight: 900;
-}
-
-.newspaper-owner-actions .danger {
-  background: #ef4444;
-  color: white;
-}
-
-.edit-newspaper-panel {
-  width: min(780px, 92vw);
-  margin: 0 auto 30px;
-  padding: 28px;
-  border-radius: 28px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.18);
-}
-
-.edit-newspaper-panel input,
-.edit-newspaper-panel textarea {
-  width: 100%;
-  margin: 10px 0;
-  padding: 14px;
-  border-radius: 14px;
-}
-
-.open-original-btn {
-  display: inline-flex;
-  margin-top: 28px;
-  padding: 14px 26px;
-  border-radius: 999px;
-  background: #111;
-  color: white !important;
-  text-decoration: none;
-  font-weight: 900;
-}
-
-@media (max-width: 850px) {
-  .visual-newspaper {
-    padding: 26px;
-    min-height: auto;
+  .journal-article-page h4{
+    font-size:46px;
   }
 
-  .red-grid,
-  .red-highlight-strip,
-  .timeline-line,
-  .timeline-sections,
-  .academic-book-layout {
-    grid-template-columns: 1fr;
+  .journal-lead{
+    font-size:20px;
   }
 
-  .news-columns {
-    columns: 1;
+  .journal-article-columns{
+    grid-template-columns:1fr;
   }
 
-  .info-nodes {
-    position: relative;
-    inset: auto;
-    display: grid;
-    gap: 14px;
-    margin-top: 24px;
+  .journal-infographic-page{
+    padding:45px;
   }
 
-  .node {
-    position: relative;
-    width: auto;
-    inset: auto;
+  .journal-infographic-core h4{
+    font-size:48px;
   }
 
-  .circle-core {
-    width: 240px;
-    height: 240px;
+  .journal-infographic-grid{
+    grid-template-columns:1fr;
+  }
+
+  .journal-study-page{
+    padding:45px;
+  }
+
+  .journal-study-page h4{
+    font-size:46px;
   }
 }
