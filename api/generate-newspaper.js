@@ -4,19 +4,11 @@ export default async function handler(req, res) {
   }
 
   if (!process.env.GROQ_API_KEY) {
-    return res.status(500).json({
-      error: "GROQ_API_KEY não está configurada.",
-    })
+    return res.status(500).json({ error: "GROQ_API_KEY não configurada." })
   }
 
   try {
     const { title, fileName, fileType, fileText, language } = req.body
-
-    if (!fileText || fileText.trim().length < 50) {
-      return res.status(400).json({
-        error: "Não foi possível ler texto suficiente do documento.",
-      })
-    }
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -30,42 +22,54 @@ export default async function handler(req, res) {
           {
             role: "system",
             content: `
-Cria um jornal de estudo real baseado no conteúdo do documento.
-Não inventes conteúdo genérico.
-Usa o idioma: ${language || "English"}.
+Cria um jornal/infográfico visual de estudo baseado no conteúdo real.
+Não faças resumo genérico.
+Cria conteúdo rico, dividido e organizado como revista, jornal ou infográfico.
 Responde APENAS com JSON válido.
             `,
           },
           {
             role: "user",
             content: `
-Título dado: ${title}
-Nome do ficheiro: ${fileName}
+Idioma: ${language || "Português"}
+Título: ${title}
+Ficheiro: ${fileName}
 Tipo: ${fileType}
 
-Conteúdo do documento:
-${fileText.slice(0, 18000)}
+Conteúdo:
+${fileText?.slice(0, 26000)}
 
-Responde neste formato:
+Formato obrigatório:
 {
-  "title": "título curto e real do conteúdo",
-  "category": "Mathematics",
-  "summary": "resumo claro do documento em 2 frases",
-  "highlights": [
-    "conceito principal 1",
-    "conceito principal 2",
-    "conceito principal 3"
+  "title": "título forte",
+  "subtitle": "subtítulo editorial",
+  "category": "Matemática",
+  "visual_style": "magazine-red",
+  "lead": "abertura estilo jornal",
+  "summary": "resumo desenvolvido",
+  "sections": [
+    { "title": "secção 1", "body": "texto completo" },
+    { "title": "secção 2", "body": "texto completo" },
+    { "title": "secção 3", "body": "texto completo" },
+    { "title": "secção 4", "body": "texto completo" }
   ],
+  "highlights": ["ponto 1", "ponto 2", "ponto 3", "ponto 4", "ponto 5"],
+  "keywords": ["conceito 1", "conceito 2", "conceito 3", "conceito 4"],
+  "study_plan": ["passo 1", "passo 2", "passo 3", "passo 4"],
+  "quote": "frase forte do tema",
   "type": "Jornal de estudo"
 }
 
-A category tem de ser uma destas:
+Categorias possíveis:
 "Matemática", "Programação", "Redes", "Bases de Dados", "Algoritmos"
+
+visual_style deve ser um destes:
+"magazine-red", "black-white-news", "infographic-cards", "timeline-ui", "academic-book"
             `,
           },
         ],
-        temperature: 0.2,
-        max_tokens: 800,
+        temperature: 0.35,
+        max_tokens: 1800,
       }),
     })
 
@@ -73,7 +77,7 @@ A category tem de ser uma destas:
 
     if (!response.ok) {
       return res.status(500).json({
-        error: data.error?.message || "Erro da IA ao gerar jornal.",
+        error: data.error?.message || "Erro da IA.",
       })
     }
 
@@ -82,7 +86,7 @@ A category tem de ser uma destas:
     })
   } catch (error) {
     return res.status(500).json({
-      error: error.message || "Erro interno ao gerar jornal.",
+      error: error.message || "Erro interno.",
     })
   }
 }
