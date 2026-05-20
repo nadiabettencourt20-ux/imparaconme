@@ -6,7 +6,6 @@ import MagazineJournal from "../MagazineJournal"
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs"
 import pdfWorker from "pdfjs-dist/legacy/build/pdf.worker.min.mjs?url"
 import "./UploadHub.css"
-import MegazineJournal from "../MegazineJournal"
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker
 
