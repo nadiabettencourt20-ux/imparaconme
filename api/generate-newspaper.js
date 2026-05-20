@@ -1,8 +1,6 @@
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({
-      error: "Método não permitido",
-    })
+    return res.status(405).json({ error: "Método não permitido" })
   }
 
   if (!process.env.GROQ_API_KEY) {
@@ -13,6 +11,12 @@ export default async function handler(req, res) {
 
   try {
     const { title, fileName, fileType, fileText, language } = req.body
+
+    if (!fileText || fileText.trim().length < 50) {
+      return res.status(400).json({
+        error: "Não foi possível ler texto suficiente do documento.",
+      })
+    }
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -25,26 +29,33 @@ export default async function handler(req, res) {
         messages: [
           {
             role: "system",
-            content:
-              "Cria um resumo académico em JSON válido. Responde apenas com JSON, sem markdown.",
+            content: `
+Cria um jornal de estudo real baseado no conteúdo do documento.
+Não inventes conteúdo genérico.
+Usa o idioma: ${language || "English"}.
+Responde APENAS com JSON válido.
+            `,
           },
           {
             role: "user",
             content: `
-Idioma: ${language || "Português"}
-Título: ${title || fileName}
-Tipo de ficheiro: ${fileType || "documento"}
+Título dado: ${title}
 Nome do ficheiro: ${fileName}
+Tipo: ${fileType}
 
-Conteúdo extraído:
-${fileText || "O ficheiro foi enviado, mas não foi possível extrair texto. Cria uma estrutura genérica para estudo."}
+Conteúdo do documento:
+${fileText.slice(0, 18000)}
 
-Responde neste formato JSON:
+Responde neste formato:
 {
-  "title": "título curto",
-  "category": "Programação",
-  "summary": "resumo simples do material",
-  "highlights": ["ponto 1", "ponto 2", "ponto 3"],
+  "title": "título curto e real do conteúdo",
+  "category": "Matemática",
+  "summary": "resumo claro do documento em 2 frases",
+  "highlights": [
+    "conceito principal 1",
+    "conceito principal 2",
+    "conceito principal 3"
+  ],
   "type": "Jornal de estudo"
 }
 
@@ -53,8 +64,8 @@ A category tem de ser uma destas:
             `,
           },
         ],
-        temperature: 0.3,
-        max_tokens: 500,
+        temperature: 0.2,
+        max_tokens: 800,
       }),
     })
 
@@ -62,7 +73,7 @@ A category tem de ser uma destas:
 
     if (!response.ok) {
       return res.status(500).json({
-        error: data.error?.message || "Erro da Groq.",
+        error: data.error?.message || "Erro da IA ao gerar jornal.",
       })
     }
 
