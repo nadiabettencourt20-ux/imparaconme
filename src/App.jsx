@@ -13,6 +13,7 @@ import Forum from "./components/Forum/Forum"
 import LogoLoop from "./components/LogoLoop/LogoLoop"
 import UploadHub from "./components/UploadHub/UploadHub"
 import GradualBlur from "./components/GradualBlur/GradualBlur"
+import MagazineJournal from "../MagazineJournal"
 
 import { siteTexts } from "./i18n/siteTexts"
 import { useAiTranslation } from "./i18n/useAiTranslation"
